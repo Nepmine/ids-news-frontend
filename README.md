@@ -22,9 +22,9 @@ A modern news website for IDS Story Nepal.
 ## Environment Variables
 
 Required environment variables:
-- `REACT_APP_API_BASE_URL` - Backend API URL
-- `REACT_APP_CLOUDINARY_CLOUD_NAME` - Cloudinary cloud name
-- `REACT_APP_CLOUDINARY_UPLOAD_PRESET` - Cloudinary upload preset
+- `VITE_API_BASE_URL` - Backend API URL
+- `VITE_CLOUDINARY_CLOUD_NAME` - Cloudinary cloud name
+- `VITE_CLOUDINARY_UPLOAD_PRESET` - Cloudinary upload preset
 - `REACT_APP_GOOGLE_CLIENT_ID` - Google OAuth client ID
 
 ## Available Scripts
