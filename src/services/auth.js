@@ -8,6 +8,7 @@ export const initGoogleAuth = (onSuccess) => {
     client_id: import.meta.env.REACT_APP_GOOGLE_CLIENT_ID,
     callback: (response) => {
       const token = response.credential;
+    console.log("User Logged in Successfully by OAuth...2", token)
       localStorage.setItem('token', token);
       if (onSuccess) {
         onSuccess(token);
@@ -44,6 +45,6 @@ export const promptGoogleSignIn = () => {
 };
 
 export const signOut = () => {
-  localStorage.removeItem('token');
+  // localStorage.removeItem('token');   
   window.location.reload();
 };

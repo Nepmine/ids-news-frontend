@@ -1,14 +1,10 @@
-const API_BASE_URL = 'http://localhost:8000/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
 
 class APIService {
-  constructor() {
-    this.baseURL = API_BASE_URL;
-  }
-
   setToken(token) {
     localStorage.setItem('token', token);
   }
-
+  
   getToken() {
     return localStorage.getItem('token');
   }
@@ -18,52 +14,52 @@ class APIService {
   }
 
   async request(endpoint, options = {}) {
-    const token = this.getToken();
-    const headers = {
-      'Content-Type': 'application/json',
-      ...(token && { Authorization: `Bearer ${token}` }),
+      console.log("---------------- login debug step - B")
+      const token = this.getToken();
+      console.log("---------------- login debug step - D", token)
+      const headers = {
+        'Content-Type': 'application/json',
+        ...(token && { Authorization: `Bearer ${token}` }),
       ...options.headers,
     };
 
-    const response = await fetch(`${this.baseURL}${endpoint}`, {
-      ...options,
-      headers,
-    });
-
-    if (!response.ok) {
-      const error = await response.text();
-      throw new Error(error || `API Error: ${response.statusText}`);
-    }
-
-    return response.json();
+        console.log("---------------- login debug step - E", endpoint)
+        const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+          ...options,
+          headers,
+        });
+        
+        console.log("---------------- login debug step - F", response)
+        if (!response.ok) {
+          const error = await response.text();
+          throw new Error(error || `API Error: ${response.statusText}`);
+        }
+        
+        console.log("---------------- login debug step - G")
+        return response.json();
   }
 
-  // User endpoints
+  // ✅ ADD THIS - Login endpoint to register/verify user
   async login() {
+      console.log("---------------- login debug step - A")
     return this.request('/user/userLogin');
   }
 
+  // User endpoints
   async getUserDetails() {
     return this.request('/user/userDetails');
   }
 
-  async makeAuthor(secret) {
-    return this.request('/user/makeAuthor', {
-      method: 'POST',
-      body: JSON.stringify({ secret }),
-    });
-  }
-
-  async getMyBlogs() {
-    return this.request('/user/myBlogs');
+  async isAuthor() {
+    return this.request('/user/isAuthor');
   }
 
   async getMyLikedPosts() {
     return this.request('/user/myLikedPosts');
   }
 
-  async isAuthor() {
-    return this.request('/user/isAuthor');
+  async getMyBlogs() {
+    return this.request('/user/myBlogs');
   }
 
   // Post endpoints
