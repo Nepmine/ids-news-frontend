@@ -12,11 +12,11 @@ class APIService {
   clearToken() {
     localStorage.removeItem("token");
   }
-
   async request(endpoint, options = {}) {
     const token = this.getToken();
+    const hasBody = options.body && Object.keys(options.body).length > 0;
     const headers = {
-      "Content-Type": "application/json",
+      ...(hasBody && { "Content-Type": "application/json" }),
       ...(token && { Authorization: `Bearer ${token}` }),
       ...options.headers,
     };
@@ -24,6 +24,7 @@ class APIService {
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
       ...options,
       headers,
+      body: hasBody ? JSON.stringify(options.body) : undefined,
     });
 
     if (!response.ok) {
@@ -128,6 +129,7 @@ class APIService {
   async removeFromTrending(postId) {
     return this.request(`/post/trending/${postId}`, {
       method: "DELETE",
+      body: {},
     });
   }
 }

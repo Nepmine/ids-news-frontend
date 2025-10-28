@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { TrendingUp, Plus, Minus, X, Check, Flame } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
-import { api } from '../services/api';
-import { PostDetail } from '../components/posts/PostDetail';
+import React, { useState, useEffect } from "react";
+import { TrendingUp, Plus, Minus, X, Check, Flame } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
+import { api } from "../services/api";
+import { PostDetail } from "../components/posts/PostDetail";
 
 export const Trending = () => {
   const { user, isAuthor } = useAuth();
@@ -26,7 +26,7 @@ export const Trending = () => {
       const data = await api.getTrendingPosts();
       setTrendingPosts(data);
     } catch (error) {
-      console.error('Failed to load trending posts:', error);
+      console.error("Failed to load trending posts:", error);
     } finally {
       setLoading(false);
     }
@@ -35,9 +35,13 @@ export const Trending = () => {
   const loadAllPosts = async () => {
     try {
       const data = await api.getHomePosts();
+      console.log(
+        "-------------------------- data ---------------------------",
+        data
+      );
       setAllPosts(data);
     } catch (error) {
-      console.error('Failed to load all posts:', error);
+      console.error("Failed to load all posts:", error);
     }
   };
 
@@ -49,24 +53,24 @@ export const Trending = () => {
       await loadAllPosts();
       setShowAddModal(false);
     } catch (error) {
-      console.error('Failed to add to trending:', error);
-      alert('Failed to add to trending: ' + error.message);
+      console.error("Failed to add to trending:", error);
+      alert("Failed to add to trending: " + error.message);
     } finally {
       setActionLoading(null);
     }
   };
 
   const handleRemoveTrending = async (postId) => {
-    if (!confirm('Remove this post from trending?')) return;
-    
+    if (!confirm("Remove this post from trending?")) return;
+
     setActionLoading(postId);
     try {
       await api.removeFromTrending(postId);
       await loadTrendingPosts();
       await loadAllPosts();
     } catch (error) {
-      console.error('Failed to remove from trending:', error);
-      alert('Failed to remove from trending: ' + error.message);
+      console.error("Failed to remove from trending:", error);
+      alert("Failed to remove from trending: " + error.message);
     } finally {
       setActionLoading(null);
     }
@@ -74,17 +78,15 @@ export const Trending = () => {
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric'
+    return date.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
     });
   };
 
   // Get posts that are not already trending
-  const availablePosts = allPosts.filter(
-    post => !post.trending && post.authorId === user?.authorProfile?.authorId
-  );
+  const availablePosts = allPosts.filter((post) => !post.trending);
 
   if (loading) {
     return (
@@ -111,9 +113,9 @@ export const Trending = () => {
                 </h1>
               </div>
               <p className="text-xl text-red-100">
-                {isAuthor 
-                  ? 'Manage and view trending posts'
-                  : 'Most popular stories right now'}
+                {isAuthor
+                  ? "Manage and view trending posts"
+                  : "Most popular stories right now"}
               </p>
             </div>
             {isAuthor && (
@@ -161,19 +163,22 @@ export const Trending = () => {
                 )}
 
                 {/* Post Image */}
-                <div 
+                <div
                   onClick={() => setSelectedPostId(post.postId)}
                   className="h-56 overflow-hidden relative cursor-pointer"
                 >
                   <img
-                    src={post.frontImageUrl || 'https://images.unsplash.com/photo-1504711434969-e33886168f5c'}
+                    src={
+                      post.frontImageUrl ||
+                      "https://images.unsplash.com/photo-1504711434969-e33886168f5c"
+                    }
                     alt={post.title}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                   />
                 </div>
 
                 {/* Post Content */}
-                <div 
+                <div
                   onClick={() => setSelectedPostId(post.postId)}
                   className="p-6 cursor-pointer"
                 >
@@ -186,8 +191,18 @@ export const Trending = () => {
 
                   <div className="flex items-center justify-between pt-4 border-t">
                     <div className="flex items-center text-gray-500 text-sm">
-                      <svg className="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                      <svg
+                        className="w-5 h-5 mr-1"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                        />
                       </svg>
                       <span className="font-semibold">{post.likes || 0}</span>
                     </div>
@@ -206,9 +221,9 @@ export const Trending = () => {
               No Trending Posts Yet
             </h3>
             <p className="text-gray-600 mb-6">
-              {isAuthor 
-                ? 'Add your first trending post to get started'
-                : 'Check back soon for trending stories'}
+              {isAuthor
+                ? "Add your first trending post to get started"
+                : "Check back soon for trending stories"}
             </p>
             {isAuthor && (
               <button
@@ -225,11 +240,11 @@ export const Trending = () => {
 
       {/* Add to Trending Modal */}
       {showAddModal && (
-        <div 
+        <div
           className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 backdrop-blur-sm p-4"
           onClick={() => setShowAddModal(false)}
         >
-          <div 
+          <div
             className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[80vh] overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
@@ -237,7 +252,9 @@ export const Trending = () => {
             <div className="bg-gradient-to-r from-red-600 to-red-700 text-white px-6 py-5 flex items-center justify-between">
               <div>
                 <h2 className="text-2xl font-bold">Add to Trending</h2>
-                <p className="text-red-100 text-sm mt-1">Select a post to feature as trending</p>
+                <p className="text-red-100 text-sm mt-1">
+                  Select a post to feature as trending
+                </p>
               </div>
               <button
                 onClick={() => setShowAddModal(false)}
@@ -258,7 +275,10 @@ export const Trending = () => {
                     >
                       {/* Post Image */}
                       <img
-                        src={post.frontImageUrl || 'https://images.unsplash.com/photo-1504711434969-e33886168f5c'}
+                        src={
+                          post.frontImageUrl ||
+                          "https://images.unsplash.com/photo-1504711434969-e33886168f5c"
+                        }
                         alt={post.title}
                         className="w-24 h-24 object-cover rounded-lg mr-4 flex-shrink-0"
                       />
@@ -272,7 +292,9 @@ export const Trending = () => {
                           {post.headline}
                         </p>
                         <div className="flex items-center text-sm text-gray-500">
-                          <span className="mr-4">❤️ {post.likes || 0} likes</span>
+                          <span className="mr-4">
+                            ❤️ {post.likes || 0} likes
+                          </span>
                           <span>{formatDate(post.createdAt)}</span>
                         </div>
                       </div>
@@ -299,7 +321,8 @@ export const Trending = () => {
                 <div className="text-center py-12">
                   <Check className="w-16 h-16 text-gray-400 mx-auto mb-4" />
                   <p className="text-gray-600">
-                    All your posts are already trending or you have no posts yet.
+                    All your posts are already trending or you have no posts
+                    yet.
                   </p>
                 </div>
               )}
