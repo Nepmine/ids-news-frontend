@@ -44,4 +44,4 @@ Required environment variables:
 
 ## License
 
-© 2025 IDS Story Nepal. All rights reserved.
+© 2025 IDS News Nepal. All rights reserved.

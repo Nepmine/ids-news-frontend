@@ -5,6 +5,7 @@ import { ErrorBoundary } from './components/common/ErrorBoundary';
 import { Header } from './components/common/Header';
 import { Footer } from './components/common/Footer';
 import { Home } from './pages/Home';
+import { About } from './pages/About';
 import { PostDetailsPage } from './pages/PostDetails';
 import { MyPosts } from './pages/MyPosts';
 import { LikedPosts } from './pages/LikedPosts';
@@ -19,6 +20,9 @@ function AppContent() {
       <main className="flex-1">
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/trending" element={<Home />} />
+          <Route path="/latest" element={<Home />} />
           <Route path="/post/:id" element={<PostDetailsPage />} />
           <Route path="/my-posts" element={<MyPosts />} />
           <Route path="/liked" element={<LikedPosts />} />

@@ -14,34 +14,28 @@ class APIService {
   }
 
   async request(endpoint, options = {}) {
-      console.log("---------------- login debug step - B")
       const token = this.getToken();
-      console.log("---------------- login debug step - D", token)
       const headers = {
         'Content-Type': 'application/json',
         ...(token && { Authorization: `Bearer ${token}` }),
       ...options.headers,
     };
 
-        console.log("---------------- login debug step - E", endpoint)
         const response = await fetch(`${API_BASE_URL}${endpoint}`, {
           ...options,
           headers,
         });
         
-        console.log("---------------- login debug step - F", response)
         if (!response.ok) {
           const error = await response.text();
           throw new Error(error || `API Error: ${response.statusText}`);
         }
         
-        console.log("---------------- login debug step - G")
         return response.json();
   }
 
   // ✅ ADD THIS - Login endpoint to register/verify user
   async login() {
-      console.log("---------------- login debug step - A")
     return this.request('/user/userLogin');
   }
 
