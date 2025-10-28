@@ -4,11 +4,15 @@ import { api } from '../../services/api';
 import { LoadingSpinner } from '../common/LoadingSpinner';
 import { CommentList } from '../comments/CommentList';
 import { CommentForm } from '../comments/CommentForm';
+import { AuthRequiredModal } from '../common/AuthRequiredModal';
+
 
 export const PostDetail = ({ postId, onClose, user }) => {
   const [post, setPost] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isLiked, setIsLiked] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+
 
   useEffect(() => {
     loadPost();
@@ -60,10 +64,11 @@ export const PostDetail = ({ postId, onClose, user }) => {
   };
 
   const handleLike = async () => {
-    if (!user) {
-      alert('Please sign in to like this post');
-      return;
-    }
+ if (!user) {
+  setShowAuthModal(true);
+  return;
+}
+
 
     try {
       await api.likePost(postId);
@@ -87,20 +92,24 @@ export const PostDetail = ({ postId, onClose, user }) => {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
-        <div className="bg-white rounded-lg p-8">
-          <LoadingSpinner />
-        </div>
+if (loading) {
+  return (
+    <div className="fixed inset-0 bg-black/40 backdrop-blur-md flex items-center justify-center z-50">
+      <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-2xl p-10 flex flex-col items-center">
+        <LoadingSpinner text="Loading post..." />
       </div>
-    );
-  }
+    </div>
+  );
+}
+
 
   if (!post) return null;
 
+
+
+
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-60 overflow-y-auto z-50 backdrop-blur-sm">
+<div className="fixed inset-0 bg-black/40 backdrop-blur-md overflow-y-auto z-50">
       <div className="min-h-screen px-4 py-8">
         <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-2xl">
           {/* Header */}
@@ -218,6 +227,17 @@ export const PostDetail = ({ postId, onClose, user }) => {
           </div>
         </div>
       </div>
+
+        {showAuthModal && (
+  <AuthRequiredModal
+    onClose={() => setShowAuthModal(false)}
+    onSignIn={() => {
+      setShowAuthModal(false);
+      // Redirect user to your sign-in page or open a login modal
+      window.location.href = '/login';
+    }}
+  />
+)}
     </div>
   );
 };
