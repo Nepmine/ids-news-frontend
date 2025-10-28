@@ -7,6 +7,7 @@ import { Footer } from './components/common/Footer';
 import { Home } from './pages/Home';
 import { About } from './pages/About';
 import { Trending } from './pages/Trending';
+import { WeeklyArticle } from './pages/WeeklyArticle';
 import { PostDetailsPage } from './pages/PostDetails';
 import { MyPosts } from './pages/MyPosts';
 import { LikedPosts } from './pages/LikedPosts';
@@ -23,7 +24,7 @@ function AppContent() {
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
           <Route path="/trending" element={<Trending />} />
-          <Route path="/latest" element={<Home />} />
+          <Route path="/weeklyArticle" element={<WeeklyArticle />} />
           <Route path="/post/:id" element={<PostDetailsPage />} />
           <Route path="/my-posts" element={<MyPosts />} />
           <Route path="/liked" element={<LikedPosts />} />

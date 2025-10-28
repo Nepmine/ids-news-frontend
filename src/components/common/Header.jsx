@@ -51,12 +51,12 @@ export const Header = ({ onMenuClick }) => {
                 Trending
               </button>
               <button
-                onClick={() => navigate('/latest')}
+                onClick={() => navigate('/weeklyArticle')}
                 className={`text-white hover:text-red-100 transition font-medium text-base px-4 py-2 rounded ${
-                  isActive('/latest') ? 'bg-red-700' : ''
+                  isActive('/weeklyArticle') ? 'bg-red-700' : ''
                 }`}
               >
-                Latest
+                Weekly-Article
               </button>
               <button
                 onClick={() => navigate('/about')}
