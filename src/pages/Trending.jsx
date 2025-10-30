@@ -3,6 +3,8 @@ import { TrendingUp, Plus, Minus, X, Check, Flame } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { api } from "../services/api";
 import { PostDetail } from "../components/posts/PostDetail";
+import banner from "../assets/channels4_banner.jpg";
+
 
 export const Trending = () => {
   const { user, isAuthor } = useAuth();
@@ -102,34 +104,47 @@ export const Trending = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Banner */}
-      <div className="bg-gradient-to-r from-red-600 to-red-700 text-white">
-        <div className="max-w-7xl mx-auto px-4 py-12">
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="flex items-center mb-3">
-                <Flame className="w-10 h-10 mr-3" />
-                <h1 className="text-4xl md:text-5xl font-bold">
-                  Trending Stories
-                </h1>
-              </div>
-              <p className="text-xl text-red-100">
-                {isAuthor
-                  ? "Manage and view trending posts"
-                  : "Most popular stories right now"}
-              </p>
-            </div>
-            {isAuthor && (
-              <button
-                onClick={() => setShowAddModal(true)}
-                className="bg-white text-red-600 px-6 py-3 rounded-lg hover:bg-red-50 transition flex items-center font-semibold shadow-lg"
-              >
-                <Plus className="w-5 h-5 mr-2" />
-                Add to Trending
-              </button>
-            )}
-          </div>
-        </div>
+<div
+  className="relative bg-red-600"
+  style={{
+    backgroundImage: `url(${banner})`,
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+    backgroundRepeat: "no-repeat",
+    height:200,
+  }}
+>
+  <div className="py-10 pl-9">
+    <div className="flex flex-col items-start text-left">
+      <div className="flex items-center mb-2">
+        <Flame className="w-6 h-6 mr-2 text-[#ff0000]" /> {/* slightly smaller icon */}
+        <h1 className="text-2xl md:text-3xl font-semibold text-[#ff0000] leading-tight">
+          Trending Stories
+        </h1>
       </div>
+      <p className="text-base text-[#ff4d4d] mb-2">
+        {isAuthor
+          ? "Manage and view trending posts"
+          : "Most popular stories right now"}
+      </p>
+      {isAuthor && (
+        <button
+          onClick={() => setShowAddModal(true)}
+          className="bg-white text-red-600 px-4 py-2 rounded-lg hover:bg-red-50 transition flex items-center font-medium shadow-md mt-2"
+        >
+          <Plus className="w-4 h-4 mr-1" />
+          Add to Trending
+        </button>
+      )}
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
 
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Trending Posts */}

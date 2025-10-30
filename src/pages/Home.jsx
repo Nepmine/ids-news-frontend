@@ -4,6 +4,8 @@ import { PostDetail } from '../components/posts/PostDetail';
 import { PostEditor } from '../components/posts/PostEditor';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
+import banner from "../assets/channels4_banner.jpg";
+
 
 export const Home = () => {
   const { user, isAuthor } = useAuth();
@@ -116,29 +118,39 @@ export const Home = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Banner */}
-      <div className="bg-gradient-to-r from-red-600 to-red-700 text-white">
-        <div className="max-w-7xl mx-auto px-4 py-12">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-4xl md:text-5xl font-bold mb-3">
-                Latest News from Nepal
-              </h1>
-              <p className="text-xl text-red-100">
-                Stay informed with the most trusted news source
-              </p>
-            </div>
-            {isAuthor && (
-              <button
-                onClick={() => setShowEditor(true)}
-                className="bg-white text-red-600 px-6 py-3 rounded-lg hover:bg-red-50 transition flex items-center font-semibold shadow-lg"
-              >
-                <Plus className="w-5 h-5 mr-2" />
-                Create Post
-              </button>
-            )}
-          </div>
-        </div>
-      </div>
+<div
+  className="relative bg-red-700"
+  style={{
+    backgroundImage: `url(${banner})`,
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+    backgroundRepeat: "no-repeat",
+    imageRendering: "pixelated",
+    height:200
+  }}
+>
+  <div className="py-10 pl-9"> {/* only small left padding */}
+    <div className="flex flex-col items-start text-left">
+      <h1 className="text-2xl md:text-3xl font-semibold text-[#ff0000] leading-tight mb-1">
+        Latest News from Nepal
+      </h1>
+      <p className="text-base text-[#ff4d4d] mb-3">
+        Stay informed with the most trusted news source
+      </p>
+      {isAuthor && (
+        <button
+          onClick={() => setShowEditor(true)}
+          className="bg-white text-red-600 px-4 py-2 rounded-lg hover:bg-red-50 transition flex items-center font-medium shadow-md mt-2"
+        >
+          <Plus className="w-4 h-4 mr-1" />
+          Create Post
+        </button>
+      )}
+    </div>
+  </div>
+</div>
+
+
 
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Featured Story */}

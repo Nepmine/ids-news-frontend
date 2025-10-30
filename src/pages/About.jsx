@@ -1,18 +1,34 @@
 import React from 'react';
 import { Users, Target, Award, Heart } from 'lucide-react';
+import banner from "../assets/channels4_banner.jpg";
+
 
 export const About = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
-      <div className="bg-gradient-to-r from-red-600 to-red-700 text-white">
-        <div className="max-w-7xl mx-auto px-4 py-20">
-          <h1 className="text-5xl font-bold mb-4">About IDS Story Nepal</h1>
-          <p className="text-xl text-red-100 max-w-3xl">
-            Your trusted source for authentic news and stories from Nepal
-          </p>
-        </div>
-      </div>
+   <div
+  className="relative bg-red-700"
+  style={{
+    backgroundImage: `url(${banner})`, // optional banner image
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+    backgroundRepeat: "no-repeat",
+    imageRendering: "pixelated",
+  }}
+>
+  <div className="py-12 pl-6 md:py-16 md:pl-9">
+    <div className="flex flex-col items-start text-left">
+      <h1 className="text-2xl md:text-3xl font-semibold text-[#ff0000] leading-tight mb-2">
+        About IDS Story Nepal
+      </h1>
+      <p className="text-base md:text-lg text-[#ff4d4d] max-w-2xl">
+        Your trusted source for authentic news  from Nepal
+      </p>
+    </div>
+  </div>
+</div>
+
 
       {/* Mission Section */}
       <div className="max-w-7xl mx-auto px-4 py-16">
