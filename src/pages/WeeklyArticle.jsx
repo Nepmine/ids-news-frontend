@@ -9,76 +9,76 @@ import banner from "../assets/channels4_banner.jpg";
 
 export const WeeklyArticle = () => {
   const { user, isAuthor } = useAuth();
-  const [posts, setPosts] = useState([]);
+  const [articles, setArticles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [likedPosts, setLikedPosts] = useState([]);
-  const [selectedPostId, setSelectedPostId] = useState(null);
+  const [likedArticles, setLikedArticles] = useState([]);
+  const [selectedArticleId, setSelectedArticleId] = useState(null);
   const [showEditor, setShowEditor] = useState(false);
 
   useEffect(() => {
-    loadPosts();
+    loadArticles();
     if (user) {
-      loadLikedPosts();
+      loadLikedArticles();
     }
   }, [user]);
 
-  const loadPosts = async () => {
+  const loadArticles = async () => {
     try {
       setLoading(true);
-      const data = await api.getHomePosts();
-      console.log("Post data is ::: ", data);
-      setPosts(data);
+      const data = await api.getArticles();
+      console.log("Article data is ::: ", data);
+      setArticles(data);
       setError(null);
     } catch (err) {
       setError(err.message);
-      console.error("Failed to load posts:", err);
+      console.error('Failed to load articles:', err);
     } finally {
       setLoading(false);
     }
   };
 
-  const loadLikedPosts = async () => {
+  const loadLikedArticles = async () => {
     try {
       const data = await api.getMyLikedPosts();
       if (Array.isArray(data)) {
-        setLikedPosts(data.map((p) => p.postId));
+        setLikedArticles(data.map(p => p.postId));
       }
     } catch (error) {
-      console.error("Failed to load liked posts:", error);
+      console.error('Failed to load liked articles:', error);
     }
   };
 
   const handleLike = async (postId) => {
     if (!user) {
-      alert("Please sign in to like posts");
+      alert('Please sign in to like articles');
       return;
     }
 
     try {
       await api.likePost(postId);
-
-      setLikedPosts((prev) =>
+      
+      setLikedArticles(prev =>
         prev.includes(postId)
-          ? prev.filter((id) => id !== postId)
+          ? prev.filter(id => id !== postId)
           : [...prev, postId]
       );
-
-      loadPosts();
+      
+      loadArticles();
     } catch (error) {
-      console.error("Failed to like post:", error);
+      console.error('Failed to like article:', error);
     }
   };
 
-  const handleSavePost = async (formData) => {
+  const handleSaveArticle = async (formData) => {
     try {
-      await api.createPost(formData);
-      alert("Post created successfully!");
+      await api.createPost(formData, 'article');
+      alert('Article created successfully!');
       setShowEditor(false);
-      loadPosts();
+      loadArticles();
     } catch (error) {
-      console.error("Failed to create post:", error);
-      alert("Failed to create post: " + error.message);
+      console.error('Failed to create article:', error);
+      alert('Failed to create article: ' + error.message);
       throw error;
     }
   };
@@ -88,15 +88,15 @@ export const WeeklyArticle = () => {
     const now = new Date();
     const diffTime = Math.abs(now - date);
     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-
-    if (diffDays === 0) return "Today";
-    if (diffDays === 1) return "Yesterday";
+    
+    if (diffDays === 0) return 'Today';
+    if (diffDays === 1) return 'Yesterday';
     if (diffDays < 7) return `${diffDays} days ago`;
-
-    return date.toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
+    
+    return date.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
     });
   };
 
@@ -105,15 +105,15 @@ export const WeeklyArticle = () => {
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-red-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading stories...</p>
+          <p className="text-gray-600">Loading articles...</p>
         </div>
       </div>
     );
   }
 
-  // Featured post (first post)
-  const featuredPost = posts[0];
-  const regularPosts = posts.slice(1);
+  // Featured article (first article)
+  const featuredArticle = articles[0];
+  const regularArticles = articles.slice(1);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -152,11 +152,16 @@ export const WeeklyArticle = () => {
 
 
       <div className="max-w-7xl mx-auto px-4 py-8">
-        {/* Featured Story */}
-        {featuredPost && (
+        {/* Featured Article */}
+        {featuredArticle && (
           <div className="mb-12">
+            <div className="flex items-center mb-4">
+              <TrendingUp className="w-6 h-6 text-red-600 mr-2" />
+              <h2 className="text-2xl font-bold text-gray-900">Featured Article</h2>
+            </div>
+            
             <div
-              onClick={() => setSelectedPostId(featuredPost.postId)}
+              onClick={() => setSelectedArticleId(featuredArticle.postId)}
               className="bg-white rounded-2xl shadow-xl overflow-hidden cursor-pointer hover:shadow-2xl transition-all duration-500 group relative"
             >
               <div className="md:flex md:h-[500px]">
@@ -164,10 +169,10 @@ export const WeeklyArticle = () => {
                 <div className="md:w-3/5 h-80 md:h-full relative overflow-hidden">
                   <img
                     src={
-                      "https://ichef.bbci.co.uk/news/480/cpsprodpb/ba50/live/2749f2c0-8d16-11f0-8737-efba0c8331e8.jpg.webp" ||
+                      featuredArticle.frontImageUrl ||
                       "https://images.unsplash.com/photo-1504711434969-e33886168f5c"
                     }
-                    alt={featuredPost.title}
+                    alt={featuredArticle.title}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                   />
                   {/* Gradient Overlay */}
@@ -177,7 +182,7 @@ export const WeeklyArticle = () => {
                   <div className="absolute top-6 left-6 md:hidden">
                     <span className="bg-red-600 text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg flex items-center">
                       <span className="w-2 h-2 bg-white rounded-full mr-2 animate-pulse"></span>
-                      Featured Story
+                      Featured Article
                     </span>
                   </div>
                 </div>
@@ -188,18 +193,18 @@ export const WeeklyArticle = () => {
                   <div className="hidden md:flex items-center mb-6">
                     <span className="bg-red-600 text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg flex items-center">
                       <span className="w-2 h-2 bg-white rounded-full mr-2 animate-pulse"></span>
-                      Gen Z
+                      Featured Article
                     </span>
                   </div>
 
                   {/* Title */}
                   <h3 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4 leading-tight group-hover:text-red-600 transition-colors duration-300">
-                    Protest took a dark turn
+                    {featuredArticle.title}
                   </h3>
 
                   {/* Headline */}
                   <p className="text-gray-600 text-base md:text-lg mb-6 line-clamp-3 leading-relaxed">
-                    Peaceful Demonstration Turns Chaotic as Nepal’s Protest Takes a Dark Turn
+                    {featuredArticle.headline}
                   </p>
 
                   {/* Divider */}
@@ -209,7 +214,7 @@ export const WeeklyArticle = () => {
                   <div className="flex items-center justify-between mb-6 text-sm text-gray-500">
                     <div className="flex items-center">
                       <Clock className="w-4 h-4 mr-2" />
-                      <span>{formatDate(featuredPost.createdAt)}</span>
+                      <span>{formatDate(featuredArticle.createdAt)}</span>
                     </div>
                     <div className="flex items-center">
                       <svg
@@ -240,22 +245,22 @@ export const WeeklyArticle = () => {
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleLike(featuredPost.postId);
+                        handleLike(featuredArticle.postId);
                       }}
                       className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-300 ${
-                        likedPosts.includes(featuredPost.postId)
+                        likedArticles.includes(featuredArticle.postId)
                           ? "bg-red-50 text-red-600"
                           : "bg-gray-100 text-gray-600 hover:bg-red-50 hover:text-red-600"
                       }`}
                     >
                       <svg
                         className={`w-5 h-5 transition-transform duration-300 ${
-                          likedPosts.includes(featuredPost.postId)
+                          likedArticles.includes(featuredArticle.postId)
                             ? "fill-red-600 scale-110"
                             : "group-hover:scale-110"
                         }`}
                         fill={
-                          likedPosts.includes(featuredPost.postId)
+                          likedArticles.includes(featuredArticle.postId)
                             ? "currentColor"
                             : "none"
                         }
@@ -270,12 +275,12 @@ export const WeeklyArticle = () => {
                         />
                       </svg>
                       <span className="font-semibold">
-                        {featuredPost.likes || 0}
+                        {featuredArticle.likes || 0}
                       </span>
                     </button>
 
                     <button className="flex-1 bg-red-600 text-white font-semibold py-2 px-6 rounded-lg hover:bg-red-700 transition-all duration-300 flex items-center justify-center gap-2 group/btn">
-                      <span>Read Full Story</span>
+                      <span>Read Full Article</span>
                       <svg
                         className="w-5 h-5 group-hover/btn:translate-x-1 transition-transform duration-300"
                         fill="none"
@@ -300,35 +305,85 @@ export const WeeklyArticle = () => {
           </div>
         )}
 
+        {/* Latest Articles Grid */}
+        {regularArticles.length > 0 && (
+          <div>
+            <div className="flex items-center mb-6">
+              <h2 className="text-2xl font-bold text-gray-900">Latest Articles</h2>
+              <div className="flex-1 h-px bg-gray-300 ml-4"></div>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {regularArticles.map((article) => (
+                <div
+                  key={article.postId}
+                  onClick={() => setSelectedArticleId(article.postId)}
+                  className="bg-white rounded-xl shadow-md overflow-hidden cursor-pointer hover:shadow-xl transition-all duration-300 group flex flex-col"
+                >
+                  <div className="h-56 overflow-hidden relative">
+                    <img
+                      src={article.frontImageUrl || 'https://images.unsplash.com/photo-1504711434969-e33886168f5c'}
+                      alt={article.title}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                    />
+                    <div className="absolute top-4 right-4 bg-red-600 text-white px-3 py-1 rounded-full text-sm font-semibold shadow-lg">
+                      {formatDate(article.createdAt)}
+                    </div>
+                  </div>
+                  
+                  <div className="p-6 flex flex-col flex-1">
+                    <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-red-600 transition line-clamp-2">
+                      {article.title}
+                    </h3>
+                    <p className="text-gray-600 mb-4 line-clamp-2 flex-1">
+                      {article.headline}
+                    </p>
+                    
+                    <div className="flex items-center justify-between pt-4 border-t">
+                      <button 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleLike(article.postId);
+                        }}
+                        className={`flex items-center ${likedArticles.includes(article.postId) ? 'text-red-600' : 'text-gray-500'} hover:text-red-600 transition`}
+                      >
+                        <svg 
+                          className={`w-5 h-5 mr-1 ${likedArticles.includes(article.postId) ? 'fill-current' : ''}`}
+                          fill="none" 
+                          stroke="currentColor" 
+                          viewBox="0 0 24 24"
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                        </svg>
+                        <span className="font-semibold">{article.likes || 0}</span>
+                      </button>
+                      <span className="text-sm text-gray-500 flex items-center">
+                        <Eye className="w-4 h-4 mr-1" />
+                        {article.comments?.length || 0} comments
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Empty State */}
-        {posts.length === 0 && (
+        {articles.length === 0 && (
           <div className="text-center py-20">
-            <svg
-              className="w-24 h-24 text-gray-400 mx-auto mb-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"
-              />
+            <svg className="w-24 h-24 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
             </svg>
-            <h3 className="text-2xl font-bold text-gray-900 mb-2">
-              No Stories Yet
-            </h3>
-            <p className="text-gray-600 mb-6">
-              Be the first to share a story with our community
-            </p>
+            <h3 className="text-2xl font-bold text-gray-900 mb-2">No Articles Yet</h3>
+            <p className="text-gray-600 mb-6">Be the first to write an in-depth article</p>
             {isAuthor && (
               <button
                 onClick={() => setShowEditor(true)}
                 className="bg-red-600 text-white px-8 py-3 rounded-lg hover:bg-red-700 transition font-semibold inline-flex items-center"
               >
                 <Plus className="w-5 h-5 mr-2" />
-                Create Your First Post
+                Create Your First Article
               </button>
             )}
           </div>
@@ -336,10 +391,10 @@ export const WeeklyArticle = () => {
       </div>
 
       {/* Modals */}
-      {selectedPostId && (
+      {selectedArticleId && (
         <PostDetail
-          postId={selectedPostId}
-          onClose={() => setSelectedPostId(null)}
+          postId={selectedArticleId}
+          onClose={() => setSelectedArticleId(null)}
           user={user}
         />
       )}
@@ -347,7 +402,8 @@ export const WeeklyArticle = () => {
       {showEditor && (
         <PostEditor
           onClose={() => setShowEditor(false)}
-          onSave={handleSavePost}
+          onSave={handleSaveArticle}
+          contentType="article"
         />
       )}
     </div>

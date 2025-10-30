@@ -72,7 +72,7 @@ export const Home = () => {
 
   const handleSavePost = async (formData) => {
     try {
-      await api.createPost(formData);
+      await api.createPost(formData, 'post');
       alert('Post created successfully!');
       setShowEditor(false);
       loadPosts();

@@ -12,6 +12,7 @@ class APIService {
   clearToken() {
     localStorage.removeItem("token");
   }
+
   async request(endpoint, options = {}) {
     const token = this.getToken();
     const hasBody = options.body && Object.keys(options.body).length > 0;
@@ -35,7 +36,7 @@ class APIService {
     return response.json();
   }
 
-  // ✅ ADD THIS - Login endpoint to register/verify user
+  // Login endpoint to register/verify user
   async login() {
     return this.request("/user/userLogin");
   }
@@ -66,31 +67,32 @@ class APIService {
     return this.request(`/post/getPost/${postId}`);
   }
 
-  async createPost(data) {
-    return this.request("/post/createPost", {
+  async createPost(data, type) {
+    const url = `/post/createPost/${type === 'article' ? 'article' : 'post'}`;
+    return this.request(url, {
       method: "POST",
-      body: JSON.stringify(data),
+      body: data, // ✅ FIXED: Pass data directly, not JSON.stringify(data)
     });
   }
 
   async updatePost(data) {
     return this.request("/post/updatePost", {
       method: "POST",
-      body: JSON.stringify(data),
+      body: data, // ✅ FIXED: Pass data directly
     });
   }
 
   async deletePost(postId) {
     return this.request("/post/deletePost", {
       method: "POST",
-      body: JSON.stringify({ postId }),
+      body: { postId }, // ✅ FIXED: Pass object directly
     });
   }
 
   async likePost(postId) {
     return this.request("/post/likePost", {
       method: "POST",
-      body: JSON.stringify({ postId }),
+      body: { postId }, // ✅ FIXED: Pass object directly
     });
   }
 
@@ -98,21 +100,21 @@ class APIService {
   async addComment(postId, comment) {
     return this.request("/post/comment", {
       method: "POST",
-      body: JSON.stringify({ postId, comment }),
+      body: { postId, comment }, // ✅ FIXED: Pass object directly
     });
   }
 
   async editComment(commentId, comment) {
     return this.request("/post/editComment", {
       method: "POST",
-      body: JSON.stringify({ commentId, comment }),
+      body: { commentId, comment }, // ✅ FIXED: Pass object directly
     });
   }
 
   async deleteComment(commentId) {
     return this.request("/post/deleteComment", {
       method: "POST",
-      body: JSON.stringify({ commentId }),
+      body: { commentId }, // ✅ FIXED: Pass object directly
     });
   }
 
@@ -131,6 +133,10 @@ class APIService {
       method: "DELETE",
       body: {},
     });
+  }
+
+  async getArticles() {
+    return this.request("/post/allArticles");
   }
 }
 
