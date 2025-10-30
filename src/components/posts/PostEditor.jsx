@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Camera, X, Image as ImageIcon, Save, Loader } from 'lucide-react';
 import { uploadToCloudinary } from '../../services/cloudinary';
 
-export const PostEditor = ({ post, onClose, onSave }) => {
+export const PostEditor = ({ post, onClose, onSave, contentType = 'post' }) => {
   const [formData, setFormData] = useState({
     title: post?.title || '',
     headline: post?.headline || '',
@@ -13,6 +13,11 @@ export const PostEditor = ({ post, onClose, onSave }) => {
   const [saving, setSaving] = useState(false);
   const editorRef = useRef(null);
   const quillRef = useRef(null);
+
+  // Dynamic text based on contentType
+  const isArticle = contentType === 'article';
+  const typeText = isArticle ? 'Article' : 'Post';
+  const typeLower = isArticle ? 'article' : 'post';
 
   useEffect(() => {
     if (!editorRef.current || quillRef.current) return;
@@ -99,8 +104,8 @@ export const PostEditor = ({ post, onClose, onSave }) => {
       await onSave(formData);
       onClose();
     } catch (error) {
-      console.error('Failed to save post:', error);
-      alert('Failed to save post');
+      console.error(`Failed to save ${typeLower}:`, error);
+      alert(`Failed to save ${typeLower}`);
     } finally {
       setSaving(false);
     }
@@ -114,9 +119,13 @@ export const PostEditor = ({ post, onClose, onSave }) => {
           <div className="bg-gradient-to-r from-red-600 to-red-700 text-white px-6 py-5 rounded-t-2xl flex items-center justify-between">
             <div>
               <h2 className="text-2xl font-bold">
-                {post ? 'Edit Post' : 'Create New Post'}
+                {post ? `Edit ${typeText}` : `Create New ${typeText}`}
               </h2>
-              <p className="text-red-100 text-sm mt-1">Share your story with the community</p>
+              <p className="text-red-100 text-sm mt-1">
+                {isArticle 
+                  ? 'Write an in-depth article for your readers' 
+                  : 'Share your story with the community'}
+              </p>
             </div>
             <button
               onClick={onClose}
@@ -140,7 +149,7 @@ export const PostEditor = ({ post, onClose, onSave }) => {
                   setFormData({ ...formData, title: e.target.value })
                 }
                 className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent transition text-lg"
-                placeholder="Enter an engaging title..."
+                placeholder={`Enter an engaging title for your ${typeLower}...`}
               />
             </div>
 
@@ -156,7 +165,7 @@ export const PostEditor = ({ post, onClose, onSave }) => {
                 }
                 className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent transition"
                 rows="3"
-                placeholder="Write a compelling headline..."
+                placeholder={`Write a compelling headline for your ${typeLower}...`}
               />
             </div>
 
@@ -249,7 +258,7 @@ export const PostEditor = ({ post, onClose, onSave }) => {
               ) : (
                 <>
                   <Save className="w-5 h-5 mr-2" />
-                  {post ? 'Update Post' : 'Publish Post'}
+                  {post ? `Update ${typeText}` : `Publish ${typeText}`}
                 </>
               )}
             </button>
