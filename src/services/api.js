@@ -138,6 +138,30 @@ class APIService {
   async getArticles() {
     return this.request("/post/allArticles");
   }
-}
+
+
+    async getAllGalleries() {
+    return this.request("/post/getAllGalleries");
+  }
+
+
+  async createGallery(images) {
+    return this.request("/post/creategallery", {
+      method: "POST",
+      body: { images },
+    });
+  }
+
+  async likeGallery(galleryId) {
+    return this.request("/gallery/likeGallery", {
+      method: "POST",
+      body: { galleryId },
+    });
+  }
+
+;
+  }
+
+
 
 export const api = new APIService();

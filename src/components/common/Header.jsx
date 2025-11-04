@@ -71,6 +71,16 @@ export const Header = ({ onMenuClick }) => {
               >
                 Weekly-Article
               </button>
+         <button
+  onClick={() => navigate('/gallery')}
+  className={`text-white hover:text-red-100 cursor-pointer transition font-medium text-base px-4 py-2 rounded ${
+    isActive('/gallery') ? 'bg-red-700' : ''
+  }`}
+>
+  Gallery
+</button>
+
+
               <button
                 onClick={() => navigate('/about')}
                 className={`text-white hover:text-red-100 cursor-pointer transition font-medium text-base px-4 py-2 rounded ${
@@ -154,6 +164,22 @@ export const Header = ({ onMenuClick }) => {
             >
               Weekly-Article
             </button>
+
+
+<button
+  onClick={() => {
+    navigate('/gallery');
+    setIsMobileMenuOpen(false);
+  }}
+  className={`w-full text-left text-white hover:bg-red-700 transition-all duration-300 font-medium text-base px-4 py-3 rounded-lg ${
+    isActive('/gallery') ? 'bg-red-700' : ''
+  }`}
+>
+  Gallery
+</button>
+
+
+       
             <button
               onClick={() => {
                 navigate('/about');

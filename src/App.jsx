@@ -11,6 +11,7 @@ import { WeeklyArticle } from './pages/WeeklyArticle';
 import { PostDetailsPage } from './pages/PostDetails';
 import { MyPosts } from './pages/MyPosts';
 import { LikedPosts } from './pages/LikedPosts';
+import { GallerySection } from './pages/Gallary';
 
 function AppContent() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -28,6 +29,7 @@ function AppContent() {
           <Route path="/post/:id" element={<PostDetailsPage />} />
           <Route path="/my-posts" element={<MyPosts />} />
           <Route path="/liked" element={<LikedPosts />} />
+          <Route path='/gallery' element={<GallerySection/>}/> 
         </Routes>
       </main>
       

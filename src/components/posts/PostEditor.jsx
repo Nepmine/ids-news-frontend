@@ -112,7 +112,7 @@ export const PostEditor = ({ post, onClose, onSave, contentType = 'post' }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-60 overflow-y-auto z-50 backdrop-blur-sm">
+<div className="fixed inset-0 bg-black/30 backdrop-blur-md overflow-y-auto z-50 transition-all duration-300">
       <div className="min-h-screen px-4 py-8 flex items-center justify-center">
         <div className="max-w-5xl w-full bg-white rounded-2xl shadow-2xl">
           {/* Header */}
