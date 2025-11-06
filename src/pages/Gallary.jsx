@@ -414,27 +414,36 @@ export const GallerySection = () => {
       setLoading(false);
     }
   };
+const handleLike = async (galleryId) => {
+  try {
+    setGalleries(prev =>
+      prev.map(g =>
+        g.galleryId === galleryId
+          ? {
+              ...g,
+              likes: likedGalleries.includes(galleryId)
+                ? g.likes - 1
+                : g.likes + 1,
+            }
+          : g
+      )
+    );
 
-  const handleLike = async (galleryId) => {
-    try {
-      await mockApi.likeGallery(galleryId);
-      setLikedGalleries(prev =>
-        prev.includes(galleryId)
-          ? prev.filter(id => id !== galleryId)
-          : [...prev, galleryId]
-      );
-      
-      setGalleries(prev =>
-        prev.map(g =>
-          g.galleryId === galleryId
-            ? { ...g, likes: g.likes + (likedGalleries.includes(galleryId) ? -1 : 1) }
-            : g
-        )
-      );
-    } catch (error) {
-      console.error('Failed to like gallery:', error);
-    }
-  };
+    setLikedGalleries(prev =>
+      prev.includes(galleryId)
+        ? prev.filter(id => id !== galleryId)
+        : [...prev, galleryId]
+    );
+
+    // Call backend API (no need to wait to update UI)
+    await api.likeGallery(galleryId);
+  } catch (error) {
+    console.error("Failed to like gallery:", error);
+  }
+};
+
+
+
 
   const handleImageClick = (galleryId, imageIndex) => {
     const gallery = galleries.find(g => g.galleryId === galleryId);

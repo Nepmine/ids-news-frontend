@@ -12,6 +12,7 @@ import { PostDetailsPage } from './pages/PostDetails';
 import { MyPosts } from './pages/MyPosts';
 import { LikedPosts } from './pages/LikedPosts';
 import { GallerySection } from './pages/Gallary';
+import { PostPage } from './pages/PostPage';
 
 function AppContent() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -26,10 +27,11 @@ function AppContent() {
           <Route path="/about" element={<About />} />
           <Route path="/trending" element={<Trending />} />
           <Route path="/weeklyArticle" element={<WeeklyArticle />} />
-          <Route path="/post/:id" element={<PostDetailsPage />} />
           <Route path="/my-posts" element={<MyPosts />} />
           <Route path="/liked" element={<LikedPosts />} />
           <Route path='/gallery' element={<GallerySection/>}/> 
+                  <Route path="/post/:postId" element={<PostPage />} />
+
         </Routes>
       </main>
       
