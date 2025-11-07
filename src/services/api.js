@@ -68,7 +68,7 @@ class APIService {
   }
 
   async createPost(data, type) {
-    const url = `/post/createPost/${type === 'article' ? 'article' : 'post'}`;
+    const url = `/post/createPost/${type === "article" ? "article" : "post"}`;
     return this.request(url, {
       method: "POST",
       body: data, // ✅ FIXED: Pass data directly, not JSON.stringify(data)
@@ -139,11 +139,9 @@ class APIService {
     return this.request("/post/allArticles");
   }
 
-
-    async getAllGalleries() {
+  async getAllGalleries() {
     return this.request("/post/getAllGalleries");
   }
-
 
   async createGallery(images) {
     return this.request("/post/creategallery", {
@@ -153,14 +151,25 @@ class APIService {
   }
 
   async likeGallery(galleryId) {
-    return this.request("/gallery/likeGallery", {
+    return this.request("/post/gallery/likeGallery", {
       method: "POST",
       body: { galleryId },
     });
   }
 
-;
-  }
+async deleteGallery(galleryId) {
+  return this.request(`/post/galleries/${galleryId}`, {
+    method: "DELETE",
+  });
+}
+
+async deleteGalleryImage(galleryId, imageUrl) {
+  return this.request(`/post/galleries/${galleryId}/image`, {
+    method: "DELETE",
+    body: { imageUrl },
+  });
+}
+}
 
 
 

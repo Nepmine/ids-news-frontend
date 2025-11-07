@@ -1,10 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, ChevronLeft, ChevronRight, X, Upload, Heart } from 'lucide-react';
+import { Plus, ChevronLeft, ChevronRight, X, Upload, Heart, Trash2, MoreVertical } from 'lucide-react';
 import { uploadToCloudinary } from '../services/cloudinary';
-import  {api}  from '../services/api';
-
-
-
+import { api } from '../services/api';
 
 const ImageLoadingSpinner = () => (
   <div className="absolute inset-0 flex items-center justify-center bg-gray-900">
@@ -15,9 +12,33 @@ const ImageLoadingSpinner = () => (
   </div>
 );
 
-const ImageViewModal = ({ images, initialIndex, onClose, likes, galleryId, onLike, isLiked }) => {
+const ImageViewModal = ({ images, initialIndex, onClose, likes, galleryId, onLike, isLiked, isAuthor, onDeleteImage, onDeleteGallery }) => {
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const [imageLoading, setImageLoading] = useState(true);
+  const [showMenu, setShowMenu] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [isLiking, setIsLiking] = useState(false);
+  const [showHearts, setShowHearts] = useState(false);
+
+  // Debug log
+  console.log('🖼️ ImageViewModal - isAuthor:', isAuthor);
+
+  const handleLikeClick = async (e) => {
+    e.stopPropagation();
+    if (isLiking) return;
+    
+    setIsLiking(true);
+    setShowHearts(true);
+    
+    try {
+      await onLike(galleryId);
+    } finally {
+      setTimeout(() => {
+        setIsLiking(false);
+        setShowHearts(false);
+      }, 800);
+    }
+  };
 
   useEffect(() => {
     setImageLoading(true);
@@ -42,6 +63,46 @@ const ImageViewModal = ({ images, initialIndex, onClose, likes, galleryId, onLik
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
+  const handleDeleteImage = async () => {
+    if (!confirm('Delete this image? This action cannot be undone.')) return;
+    
+    setDeleteLoading(true);
+    try {
+      await onDeleteImage(galleryId, images[currentIndex]);
+      // If it was the last image, close modal
+      if (images.length === 1) {
+        onClose();
+      } else {
+        // Move to next image or previous if at end
+        if (currentIndex >= images.length - 1) {
+          setCurrentIndex(0);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to delete image:', error);
+      alert('Failed to delete image');
+    } finally {
+      setDeleteLoading(false);
+      setShowMenu(false);
+    }
+  };
+
+  const handleDeleteGallery = async () => {
+    if (!confirm('Delete entire gallery? This will delete all images and cannot be undone.')) return;
+    
+    setDeleteLoading(true);
+    try {
+      await onDeleteGallery(galleryId);
+      onClose();
+    } catch (error) {
+      console.error('Failed to delete gallery:', error);
+      alert('Failed to delete gallery');
+    } finally {
+      setDeleteLoading(false);
+      setShowMenu(false);
+    }
+  };
+
   return (
     <div className="fixed inset-0 bg-black/95 z-50 flex items-center justify-center animate-fadeIn">
       {/* Close Button */}
@@ -51,6 +112,61 @@ const ImageViewModal = ({ images, initialIndex, onClose, likes, galleryId, onLik
       >
         <X className="w-8 h-8" />
       </button>
+
+      {/* Author Menu Button - Improved Design */}
+      {isAuthor && (
+        <div className="absolute top-4 right-20 z-20">
+          <button
+            onClick={() => setShowMenu(!showMenu)}
+            className="flex items-center gap-2 px-4 py-2 bg-black/70 backdrop-blur-md text-white rounded-full hover:bg-red-600 transition shadow-lg border border-white/20"
+            title="Delete options"
+          >
+            <Trash2 className="w-5 h-5" />
+            <span className="text-sm font-semibold">Delete</span>
+          </button>
+
+          {showMenu && (
+            <div 
+              className="absolute right-0 mt-3 w-64 bg-white rounded-xl shadow-2xl py-2 z-30 border border-gray-200"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="px-3 py-2 border-b border-gray-100">
+                <p className="text-xs font-semibold text-gray-500 uppercase">Delete Options</p>
+              </div>
+              
+              <button
+                onClick={handleDeleteImage}
+                disabled={deleteLoading}
+                className="w-full px-4 py-3 text-left hover:bg-red-50 flex items-center text-gray-700 hover:text-red-600 transition-colors disabled:opacity-50 group"
+              >
+                <div className="w-10 h-10 rounded-full bg-red-50 group-hover:bg-red-100 flex items-center justify-center mr-3 transition-colors">
+                  <Trash2 className="w-5 h-5 text-red-600" />
+                </div>
+                <div className="flex-1">
+                  <p className="font-semibold text-sm">Delete This Image</p>
+                  <p className="text-xs text-gray-500">Remove current image only</p>
+                </div>
+              </button>
+
+              <div className="border-t border-gray-100 my-1"></div>
+
+              <button
+                onClick={handleDeleteGallery}
+                disabled={deleteLoading}
+                className="w-full px-4 py-3 text-left hover:bg-red-50 flex items-center text-gray-700 hover:text-red-600 transition-colors disabled:opacity-50 group"
+              >
+                <div className="w-10 h-10 rounded-full bg-red-50 group-hover:bg-red-100 flex items-center justify-center mr-3 transition-colors">
+                  <Trash2 className="w-5 h-5 text-red-600" />
+                </div>
+                <div className="flex-1">
+                  <p className="font-semibold text-sm">Delete Entire Gallery</p>
+                  <p className="text-xs text-gray-500">Remove all {images.length} images</p>
+                </div>
+              </button>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Image Container */}
       <div className="relative w-full h-full flex items-center justify-center p-8">
@@ -83,7 +199,7 @@ const ImageViewModal = ({ images, initialIndex, onClose, likes, galleryId, onLik
           </>
         )}
 
-        {/* Bottom Info Bar */}
+        {/* Bottom Info Bar with Enhanced Like */}
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 bg-black/60 backdrop-blur-md rounded-full px-8 py-4 flex items-center gap-6">
           {images.length > 1 && (
             <span className="text-white font-semibold">
@@ -92,16 +208,40 @@ const ImageViewModal = ({ images, initialIndex, onClose, likes, galleryId, onLik
           )}
           
           <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onLike(galleryId);
-            }}
-            className={`flex items-center gap-2 px-4 py-2 rounded-full transition ${
-              isLiked ? 'bg-red-600 text-white' : 'bg-white/20 text-white hover:bg-white/30'
+            onClick={handleLikeClick}
+            disabled={isLiking}
+            className={`relative flex items-center gap-2 px-5 py-2.5 rounded-full transition-all transform disabled:cursor-not-allowed ${
+              isLiked 
+                ? 'bg-red-600 text-white hover:bg-red-700 hover:scale-110 shadow-lg shadow-red-500/50' 
+                : 'bg-white/20 text-white hover:bg-white/30 hover:scale-110'
             }`}
           >
-            <Heart className={`w-5 h-5 ${isLiked ? 'fill-current' : ''}`} />
-            <span className="font-semibold">{likes}</span>
+            <Heart 
+              className={`w-6 h-6 transition-all duration-300 ${
+                isLiked ? 'fill-current' : ''
+              } ${isLiking ? 'animate-bounce' : 'hover:scale-125'}`} 
+            />
+            <span className={`font-semibold text-lg transition-all duration-300 ${
+              isLiking ? 'scale-125' : ''
+            }`}>
+              {likes}
+            </span>
+            
+            {/* Burst Hearts Animation */}
+            {showHearts && (
+              <div className="absolute inset-0 pointer-events-none">
+                {[...Array(8)].map((_, i) => (
+                  <Heart 
+                    key={i}
+                    className="absolute top-1/2 left-1/2 w-4 h-4 text-red-400 fill-current animate-burstHeart opacity-0"
+                    style={{ 
+                      animationDelay: `${i * 50}ms`,
+                      '--angle': `${i * 45}deg`
+                    }}
+                  />
+                ))}
+              </div>
+            )}
           </button>
         </div>
 
@@ -124,9 +264,33 @@ const ImageViewModal = ({ images, initialIndex, onClose, likes, galleryId, onLik
   );
 };
 
-const GalleryCard = ({ gallery, onLike, isLiked, onImageClick }) => {
+const GalleryCard = ({ gallery, onLike, isLiked, onImageClick, isAuthor, onDeleteGallery }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [imageLoading, setImageLoading] = useState(true);
+  const [showMenu, setShowMenu] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [isLiking, setIsLiking] = useState(false);
+  const [showHearts, setShowHearts] = useState(false);
+
+  // Debug log
+  console.log('🎴 GalleryCard - isAuthor:', isAuthor, 'galleryId:', gallery.galleryId);
+
+  const handleLikeClick = async (e) => {
+    e.stopPropagation();
+    if (isLiking) return;
+    
+    setIsLiking(true);
+    setShowHearts(true);
+    
+    try {
+      await onLike(gallery.galleryId);
+    } finally {
+      setTimeout(() => {
+        setIsLiking(false);
+        setShowHearts(false);
+      }, 600);
+    }
+  };
 
   const nextImage = (e) => {
     e.stopPropagation();
@@ -146,12 +310,64 @@ const GalleryCard = ({ gallery, onLike, isLiked, onImageClick }) => {
     setImageLoading(true);
   };
 
+  const handleDeleteGallery = async (e) => {
+    e.stopPropagation();
+    if (!confirm('Delete this gallery? This will delete all images and cannot be undone.')) return;
+    
+    setDeleteLoading(true);
+    try {
+      await onDeleteGallery(gallery.galleryId);
+    } catch (error) {
+      console.error('Failed to delete gallery:', error);
+      alert('Failed to delete gallery');
+    } finally {
+      setDeleteLoading(false);
+      setShowMenu(false);
+    }
+  };
+
   return (
     <div
       onClick={() => onImageClick(gallery.galleryId, currentIndex)}
       className="relative bg-white rounded-2xl shadow-lg overflow-hidden cursor-pointer group transform transition-all duration-300 hover:shadow-2xl hover:-translate-y-2"
       style={{ height: Math.random() * 150 + 300 + 'px' }}
     >
+      {/* Author Delete Menu - Only on Hover */}
+      {isAuthor && (
+        <div className="absolute top-3 right-3 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowMenu(!showMenu);
+            }}
+            className="bg-black/60 backdrop-blur-sm text-white p-2 rounded-full hover:bg-red-600 transition shadow-lg"
+            title="Delete gallery"
+          >
+            <Trash2 className="w-5 h-5" />
+          </button>
+
+          {showMenu && (
+            <div 
+              className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl py-1 z-30"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                onClick={handleDeleteGallery}
+                disabled={deleteLoading}
+                className="w-full px-4 py-2 text-left hover:bg-red-50 flex items-center text-red-600 font-semibold disabled:opacity-50"
+              >
+                {deleteLoading ? (
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-red-600 mr-2"></div>
+                ) : (
+                  <Trash2 className="w-4 h-4 mr-2" />
+                )}
+                Delete Gallery
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Image */}
       <div className="relative w-full h-full">
         {imageLoading && (
@@ -192,26 +408,39 @@ const GalleryCard = ({ gallery, onLike, isLiked, onImageClick }) => {
 
         {/* Image Counter Badge */}
         {gallery.images.length > 1 && (
-          <div className="absolute top-3 right-3 bg-black/70 backdrop-blur-sm text-white px-3 py-1 rounded-full text-sm font-bold shadow-lg">
+          <div className="absolute top-3 left-3 bg-black/70 backdrop-blur-sm text-white px-3 py-1 rounded-full text-sm font-bold shadow-lg">
             {currentIndex + 1}/{gallery.images.length}
           </div>
         )}
 
-        {/* Stats Overlay - Bottom */}
+        {/* Stats Overlay - Bottom with Enhanced Like Animation */}
         <div className="absolute bottom-3 left-3">
           <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onLike(gallery.galleryId);
-            }}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full backdrop-blur-md font-semibold text-sm shadow-lg transition-all transform hover:scale-110 ${
+            onClick={handleLikeClick}
+            disabled={isLiking}
+            className={`relative flex items-center gap-1.5 px-3 py-1.5 rounded-full backdrop-blur-md font-semibold text-sm shadow-lg transition-all transform hover:scale-110 disabled:cursor-not-allowed ${
               isLiked
-                ? 'bg-red-600 text-white'
-                : 'bg-white/90 text-gray-800 hover:bg-white'
+                ? 'bg-red-600 text-white hover:bg-red-700'
+                : 'bg-white/90 text-gray-800 hover:bg-white hover:shadow-xl'
             }`}
           >
-            <Heart className={`w-4 h-4 ${isLiked ? 'fill-current' : ''}`} />
-            <span>{gallery.likes}</span>
+            <Heart 
+              className={`w-4 h-4 transition-all duration-300 ${
+                isLiked ? 'fill-current scale-110' : 'hover:scale-125'
+              } ${isLiking ? 'animate-ping' : ''}`} 
+            />
+            <span className={`transition-all duration-300 ${isLiking ? 'scale-110' : ''}`}>
+              {gallery.likes}
+            </span>
+            
+            {/* Floating Hearts Animation */}
+            {showHearts && (
+              <>
+                <Heart className="absolute -top-8 left-1/2 -translate-x-1/2 w-4 h-4 text-red-500 fill-current animate-floatHeart opacity-0" style={{ animationDelay: '0ms' }} />
+                <Heart className="absolute -top-6 left-1/3 w-3 h-3 text-red-400 fill-current animate-floatHeart opacity-0" style={{ animationDelay: '100ms' }} />
+                <Heart className="absolute -top-6 left-2/3 w-3 h-3 text-pink-500 fill-current animate-floatHeart opacity-0" style={{ animationDelay: '50ms' }} />
+              </>
+            )}
           </button>
         </div>
 
@@ -264,7 +493,6 @@ const GalleryUploadModal = ({ onClose, onSave }) => {
       setUploading(true);
       setUploadProgress({ current: 0, total: images.length });
 
-      // Upload all images to Cloudinary using imported function
       const uploadPromises = images.map(async (file) => {
         const url = await uploadToCloudinary(file);
         setUploadProgress(prev => ({ ...prev, current: prev.current + 1 }));
@@ -272,8 +500,6 @@ const GalleryUploadModal = ({ onClose, onSave }) => {
       });
 
       const imageUrls = await Promise.all(uploadPromises);
-
-      // Pass the URLs to the save handler
       await onSave({ imageUrls });
     } catch (error) {
       console.error('Upload error:', error);
@@ -299,7 +525,6 @@ const GalleryUploadModal = ({ onClose, onSave }) => {
         </div>
 
         <div className="p-6 space-y-6">
-          {/* Upload Progress */}
           {uploading && (
             <div className="bg-red-50 border border-red-200 rounded-xl p-4">
               <div className="flex items-center justify-between mb-2">
@@ -396,7 +621,28 @@ export const GallerySection = () => {
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [selectedGallery, setSelectedGallery] = useState(null);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
-  const isAuthor = true;
+  const [isAuthor, setIsAuthor] = useState(false);
+
+  // Check if user is author
+  useEffect(() => {
+    const checkAuthorStatus = async () => {
+      try {
+        const response = await api.isAuthor();
+        console.log('🔍 Author check response:', response);
+        // Backend returns boolean directly, not { isAuthor: true }
+        setIsAuthor(response === true);
+      } catch (error) {
+        console.error('❌ Failed to check author status:', error);
+        setIsAuthor(false); // Set to false if API fails
+      }
+    };
+    checkAuthorStatus();
+  }, []);
+
+  // Debug log
+  useEffect(() => {
+    console.log('👤 isAuthor state:', isAuthor);
+  }, [isAuthor]);
 
   useEffect(() => {
     loadGalleries();
@@ -406,7 +652,6 @@ export const GallerySection = () => {
     try {
       setLoading(true);
       const data = await api.getAllGalleries();
-      console.log("the dtat",data);
       setGalleries(data);
     } catch (err) {
       console.error('Failed to load galleries:', err);
@@ -417,7 +662,7 @@ export const GallerySection = () => {
 
   const handleLike = async (galleryId) => {
     try {
-      await mockApi.likeGallery(galleryId);
+      await api.likeGallery(galleryId);
       setLikedGalleries(prev =>
         prev.includes(galleryId)
           ? prev.filter(id => id !== galleryId)
@@ -442,25 +687,62 @@ export const GallerySection = () => {
     setSelectedImageIndex(imageIndex);
   };
 
- const handleSaveGallery = async (formData) => {
-  try {
-    // formData.imageUrls should be an array of image URLs
-    console.log('Saving images:', formData.imageUrls);
+  const handleDeleteGallery = async (galleryId) => {
+    try {
+      await api.deleteGallery(galleryId);
+      setGalleries(prev => prev.filter(g => g.galleryId !== galleryId));
+      alert('Gallery deleted successfully');
+    } catch (error) {
+      console.error('Failed to delete gallery:', error);
+      throw error;
+    }
+  };
 
-    // Call the backend API using your service
-    await api.createGallery(formData.imageUrls);
+  const handleDeleteImage = async (galleryId, imageUrl) => {
+    try {
+      await api.deleteGalleryImage(galleryId, imageUrl);
+      
+      // Update local state
+      setGalleries(prev => prev.map(g => {
+        if (g.galleryId === galleryId) {
+          const updatedImages = g.images.filter(img => img !== imageUrl);
+          // If no images left, remove gallery
+          if (updatedImages.length === 0) {
+            return null;
+          }
+          return { ...g, images: updatedImages };
+        }
+        return g;
+      }).filter(Boolean));
 
-    alert('Photos uploaded successfully!');
-    setShowUploadModal(false);
+      // Update selected gallery if open
+      if (selectedGallery && selectedGallery.galleryId === galleryId) {
+        const updatedImages = selectedGallery.images.filter(img => img !== imageUrl);
+        if (updatedImages.length === 0) {
+          setSelectedGallery(null);
+        } else {
+          setSelectedGallery({ ...selectedGallery, images: updatedImages });
+        }
+      }
 
-    // Refresh gallery list after successful upload
-    loadGalleries();
-  } catch (error) {
-    console.error('Failed to save gallery:', error);
-    alert('Failed to save gallery: ' + error.message);
-  }
-};
+      alert('Image deleted successfully');
+    } catch (error) {
+      console.error('Failed to delete image:', error);
+      throw error;
+    }
+  };
 
+  const handleSaveGallery = async (formData) => {
+    try {
+      await api.createGallery(formData.imageUrls);
+      alert('Photos uploaded successfully!');
+      setShowUploadModal(false);
+      loadGalleries();
+    } catch (error) {
+      console.error('Failed to save gallery:', error);
+      alert('Failed to save gallery: ' + error.message);
+    }
+  };
 
   if (loading) {
     return (
@@ -514,6 +796,8 @@ export const GallerySection = () => {
                   onLike={handleLike}
                   isLiked={likedGalleries.includes(gallery.galleryId)}
                   onImageClick={handleImageClick}
+                  isAuthor={isAuthor}
+                  onDeleteGallery={handleDeleteGallery}
                 />
               </div>
             ))}
@@ -557,6 +841,9 @@ export const GallerySection = () => {
           onLike={handleLike}
           isLiked={likedGalleries.includes(selectedGallery.galleryId)}
           onClose={() => setSelectedGallery(null)}
+          isAuthor={isAuthor}
+          onDeleteImage={handleDeleteImage}
+          onDeleteGallery={handleDeleteGallery}
         />
       )}
     </div>
@@ -574,11 +861,43 @@ style.textContent = `
     from { transform: scale(0.95); opacity: 0; }
     to { transform: scale(1); opacity: 1; }
   }
+  @keyframes floatHeart {
+    0% {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+    100% {
+      opacity: 0;
+      transform: translateY(-40px) scale(1.5);
+    }
+  }
+  @keyframes burstHeart {
+    0% {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(0) rotate(0deg);
+    }
+    50% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+      transform: translate(
+        calc(-50% + cos(var(--angle, 0deg)) * 60px),
+        calc(-50% + sin(var(--angle, 0deg)) * 60px)
+      ) scale(1.5) rotate(360deg);
+    }
+  }
   .animate-fadeIn {
     animation: fadeIn 0.3s ease-out;
   }
   .animate-scaleIn {
     animation: scaleIn 0.4s ease-out;
+  }
+  .animate-floatHeart {
+    animation: floatHeart 0.8s ease-out forwards;
+  }
+  .animate-burstHeart {
+    animation: burstHeart 0.8s ease-out forwards;
   }
 `;
 document.head.appendChild(style);
