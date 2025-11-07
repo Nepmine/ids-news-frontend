@@ -151,7 +151,7 @@ class APIService {
   }
 
   async likeGallery(galleryId) {
-    return this.request("/post/gallery/likeGallery", {
+    return this.request("/post/likeGallery", {
       method: "POST",
       body: { galleryId },
     });

@@ -4,6 +4,8 @@ import { PostDetail } from '../components/posts/PostDetail';
 import { PostEditor } from '../components/posts/PostEditor';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
+  import { useNavigate } from 'react-router-dom';
+
 
 export const Home = () => {
   const { user, isAuthor } = useAuth();
@@ -13,6 +15,8 @@ export const Home = () => {
   const [likedPosts, setLikedPosts] = useState([]);
   const [selectedPostId, setSelectedPostId] = useState(null);
   const [showEditor, setShowEditor] = useState(false);
+
+const navigate = useNavigate();
 
   useEffect(() => {
     loadPosts();
@@ -150,7 +154,7 @@ export const Home = () => {
             </div>
             
             <div 
-              onClick={() => setSelectedPostId(featuredPost.postId)}
+onClick={() => navigate(`/post/${featuredPost.postId}`)}
               className="bg-white rounded-xl shadow-lg overflow-hidden cursor-pointer hover:shadow-2xl transition-all duration-300 group"
             >
               <div className="md:flex">
@@ -221,7 +225,7 @@ export const Home = () => {
               {regularPosts.map((post) => (
                 <div
                   key={post.postId}
-                  onClick={() => setSelectedPostId(post.postId)}
+onClick={() => navigate(`/post/${post.postId}`)}
                   className="bg-white rounded-xl shadow-md overflow-hidden cursor-pointer hover:shadow-xl transition-all duration-300 group flex flex-col"
                 >
                   <div className="h-56 overflow-hidden relative">
@@ -294,14 +298,6 @@ export const Home = () => {
         )}
       </div>
 
-      {/* Modals */}
-      {selectedPostId && (
-        <PostDetail
-          postId={selectedPostId}
-          onClose={() => setSelectedPostId(null)}
-          user={user}
-        />
-      )}
 
       {showEditor && (
         <PostEditor
