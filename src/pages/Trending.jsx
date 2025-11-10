@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { TrendingUp, Plus, Minus, X, Check, Flame } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { api } from "../services/api";
+import { useNavigate } from "react-router-dom";
+
 import { PostDetail } from "../components/posts/PostDetail";
 
 export const Trending = () => {
@@ -12,6 +14,8 @@ export const Trending = () => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [selectedPostId, setSelectedPostId] = useState(null);
   const [actionLoading, setActionLoading] = useState(null);
+  const navigate = useNavigate();
+
 
   useEffect(() => {
     loadTrendingPosts();
@@ -163,10 +167,10 @@ export const Trending = () => {
                 )}
 
                 {/* Post Image */}
-                <div
-                  onClick={() => setSelectedPostId(post.postId)}
-                  className="h-56 overflow-hidden relative cursor-pointer"
-                >
+              <div
+  onClick={() => navigate(`/post/${post.postId}`)}
+  className="h-56 overflow-hidden relative cursor-pointer"
+>
                   <img
                     src={
                       post.frontImageUrl ||
@@ -178,10 +182,11 @@ export const Trending = () => {
                 </div>
 
                 {/* Post Content */}
-                <div
-                  onClick={() => setSelectedPostId(post.postId)}
-                  className="p-6 cursor-pointer"
-                >
+            <div
+  onClick={() => navigate(`/post/${post.postId}`)}
+  className="p-6 cursor-pointer"
+>
+
                   <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-red-600 transition line-clamp-2">
                     {post.title}
                   </h3>
@@ -237,99 +242,100 @@ export const Trending = () => {
           </div>
         )}
       </div>
+{/* Add to Trending Modal */}
+{showAddModal && (
+  <div
+    className="fixed inset-0 z-50 flex items-center justify-center p-4"
+    onClick={() => setShowAddModal(false)}
+  >
+    {/* Blurred Background Overlay */}
+    <div className="absolute inset-0 bg-black/30 backdrop-blur-md transition-opacity"></div>
 
-      {/* Add to Trending Modal */}
-      {showAddModal && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 backdrop-blur-sm p-4"
-          onClick={() => setShowAddModal(false)}
-        >
-          <div
-            className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[80vh] overflow-hidden"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Modal Header */}
-            <div className="bg-gradient-to-r from-red-600 to-red-700 text-white px-6 py-5 flex items-center justify-between">
-              <div>
-                <h2 className="text-2xl font-bold">Add to Trending</h2>
-                <p className="text-red-100 text-sm mt-1">
-                  Select a post to feature as trending
-                </p>
-              </div>
-              <button
-                onClick={() => setShowAddModal(false)}
-                className="hover:bg-red-700 p-2 rounded-lg transition"
-              >
-                <X className="w-6 h-6" />
-              </button>
-            </div>
-
-            {/* Modal Content */}
-            <div className="p-6 overflow-y-auto max-h-[calc(80vh-100px)]">
-              {availablePosts.length > 0 ? (
-                <div className="space-y-4">
-                  {availablePosts.map((post) => (
-                    <div
-                      key={post.postId}
-                      className="flex items-center bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition"
-                    >
-                      {/* Post Image */}
-                      <img
-                        src={
-                          post.frontImageUrl ||
-                          "https://images.unsplash.com/photo-1504711434969-e33886168f5c"
-                        }
-                        alt={post.title}
-                        className="w-24 h-24 object-cover rounded-lg mr-4 flex-shrink-0"
-                      />
-
-                      {/* Post Info */}
-                      <div className="flex-1 min-w-0">
-                        <h4 className="font-bold text-gray-900 mb-1 line-clamp-1">
-                          {post.title}
-                        </h4>
-                        <p className="text-sm text-gray-600 line-clamp-2 mb-2">
-                          {post.headline}
-                        </p>
-                        <div className="flex items-center text-sm text-gray-500">
-                          <span className="mr-4">
-                            ❤️ {post.likes || 0} likes
-                          </span>
-                          <span>{formatDate(post.createdAt)}</span>
-                        </div>
-                      </div>
-
-                      {/* Add Button */}
-                      <button
-                        onClick={() => handleAddTrending(post.postId)}
-                        disabled={actionLoading === post.postId}
-                        className="ml-4 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition flex items-center font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
-                      >
-                        {actionLoading === post.postId ? (
-                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                        ) : (
-                          <>
-                            <Plus className="w-5 h-5 mr-1" />
-                            Add
-                          </>
-                        )}
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-12">
-                  <Check className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-600">
-                    All your posts are already trending or you have no posts
-                    yet.
-                  </p>
-                </div>
-              )}
-            </div>
-          </div>
+    {/* Modal Content */}
+    <div
+      className="relative bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[80vh] overflow-hidden transition-transform transform scale-100"
+      onClick={(e) => e.stopPropagation()}
+    >
+      {/* Modal Header */}
+      <div className="bg-gradient-to-r from-red-600 to-red-700 text-white px-6 py-5 flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold">Add to Trending</h2>
+          <p className="text-red-100 text-sm mt-1">
+            Select a post to feature as trending
+          </p>
         </div>
-      )}
+        <button
+          onClick={() => setShowAddModal(false)}
+          className="hover:bg-red-700 p-2 rounded-lg transition"
+        >
+          <X className="w-6 h-6" />
+        </button>
+      </div>
+
+      {/* Modal Content */}
+      <div className="p-6 overflow-y-auto max-h-[calc(80vh-100px)]">
+        {availablePosts.length > 0 ? (
+          <div className="space-y-4">
+            {availablePosts.map((post) => (
+              <div
+                key={post.postId}
+                className="flex items-center bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition cursor-pointer"
+              >
+                {/* Post Image */}
+                <img
+                  src={
+                    post.frontImageUrl ||
+                    "https://images.unsplash.com/photo-1504711434969-e33886168f5c"
+                  }
+                  alt={post.title}
+                  className="w-24 h-24 object-cover rounded-lg mr-4 flex-shrink-0"
+                />
+
+                {/* Post Info */}
+                <div className="flex-1 min-w-0">
+                  <h4 className="font-bold text-gray-900 mb-1 line-clamp-1">
+                    {post.title}
+                  </h4>
+                  <p className="text-sm text-gray-600 line-clamp-2 mb-2">
+                    {post.headline}
+                  </p>
+                  <div className="flex items-center text-sm text-gray-500">
+                    <span className="mr-4">❤️ {post.likes || 0} likes</span>
+                    <span>{formatDate(post.createdAt)}</span>
+                  </div>
+                </div>
+
+                {/* Add Button */}
+                <button
+                  onClick={() => handleAddTrending(post.postId)}
+                  disabled={actionLoading === post.postId}
+                  className="ml-4 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition flex items-center font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
+                >
+                  {actionLoading === post.postId ? (
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                  ) : (
+                    <>
+                      <Plus className="w-5 h-5 mr-1" />
+                      Add
+                    </>
+                  )}
+                </button>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-12">
+            <Check className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+            <p className="text-gray-600">
+              All your posts are already trending or you have no posts yet.
+            </p>
+          </div>
+        )}
+      </div>
+    </div>
+  </div>
+)}
+
 
       {/* Post Detail Modal */}
       {selectedPostId && (
