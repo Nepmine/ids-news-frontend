@@ -63,6 +63,14 @@ class APIService {
     return this.request("/post/getHomePosts");
   }
 
+  async getRecentNews(recentCount) {
+    return this.request(`/post/getRecentNews/${recentCount}`);
+  }
+
+  async getCategory(category) {
+    return this.request(`/post/getCategory/${category}`);
+  }
+
   async getPost(postId) {
     return this.request(`/post/getPost/${postId}`);
   }
