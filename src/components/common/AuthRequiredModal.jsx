@@ -1,12 +1,7 @@
 import React from 'react';
 import { X, LogIn } from 'lucide-react';
 
-interface AuthRequiredModalProps {
-  onClose: () => void;
-  onSignIn: () => void;
-}
-
-export const AuthRequiredModal: React.FC<AuthRequiredModalProps> = ({
+export const AuthRequiredModal = ({
   onClose,
   onSignIn,
 }) => {

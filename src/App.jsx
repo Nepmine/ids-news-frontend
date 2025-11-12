@@ -9,7 +9,6 @@ import { About } from './pages/About';
 import { Trending } from './pages/Trending';
 import { WeeklyArticle } from './pages/WeeklyArticle';
 import { MyPosts } from './pages/MyPosts';
-import { LikedPosts } from './pages/LikedPosts';
 import { GallerySection } from './pages/Gallary';
 import { PostPage } from './pages/PostPage';
 import { CategoryPage } from './pages/Category';
@@ -28,7 +27,6 @@ function AppContent() {
           <Route path="/trending" element={<Trending />} />
           <Route path="/weeklyArticle" element={<WeeklyArticle />} />
           <Route path="/my-posts" element={<MyPosts />} />
-          <Route path="/liked" element={<LikedPosts />} />
           <Route path="/gallery" element={<GallerySection />} />
           <Route path="/post/:postId" element={<PostPage />} />
 
