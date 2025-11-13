@@ -13,6 +13,7 @@ import { LikedPosts } from './pages/LikedPosts';
 import { GallerySection } from './pages/Gallary';
 import { PostPage } from './pages/PostPage';
 import { CategoryPage } from './pages/Category';
+import { Toaster } from 'react-hot-toast'; 
 
 function AppContent() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -31,7 +32,6 @@ function AppContent() {
           <Route path="/liked" element={<LikedPosts />} />
           <Route path="/gallery" element={<GallerySection />} />
           <Route path="/post/:postId" element={<PostPage />} />
-
           <Route path="/sports" element={<CategoryPage />} />
           <Route path="/politics" element={<CategoryPage />} />
           <Route path="/business" element={<CategoryPage />} />
@@ -49,6 +49,7 @@ export default function App() {
       <AuthProvider>
         <Router>
           <AppContent />
+          <Toaster position="top-center" /> 
         </Router>
       </AuthProvider>
     </ErrorBoundary>

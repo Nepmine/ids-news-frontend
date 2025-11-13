@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { TrendingUp, Plus, Clock, Eye, Heart } from 'lucide-react';
+import { TrendingUp, Plus, Clock, Eye, Heart,X,Newspaper } from 'lucide-react';
 import { PostDetail } from '../components/posts/PostDetail';
 import { PostEditor } from '../components/posts/PostEditor';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
 import { useNavigate } from 'react-router-dom';
+import { GoogleSignIn } from '../components/auth/GoogleSignIn';
+
 
 // Design System Constants
 const TRANSITIONS = {
@@ -23,6 +25,8 @@ export const Home = () => {
   const { user, isAuthor } = useAuth();
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
+    const [showSignInModal, setShowSignInModal] = useState(false);
+  
   const [error, setError] = useState(null);
   const [likedPosts, setLikedPosts] = useState([]);
   const [selectedPostId, setSelectedPostId] = useState(null);
@@ -62,27 +66,42 @@ export const Home = () => {
     }
   };
 
-  const handleLike = async (postId, e) => {
-    if (e) e.stopPropagation();
-    if (!user) {
-      alert('Please sign in to like posts');
-      return;
-    }
+const handleLike = async (postId, e) => {
+  if (e) e.stopPropagation();
 
-    try {
-      await api.likePost(postId);
-      
-      setLikedPosts(prev =>
-        prev.includes(postId)
-          ? prev.filter(id => id !== postId)
-          : [...prev, postId]
-      );
-      
-      loadPosts();
-    } catch (error) {
-      console.error('Failed to like post:', error);
-    }
-  };
+  if (!user) {
+    setShowSignInModal(true);
+    return;
+  }
+
+  // Update UI immediately (optimistic update)
+  setLikedPosts(prev =>
+    prev.includes(postId)
+      ? prev.filter(id => id !== postId)
+      : [...prev, postId]
+  );
+
+  setPosts(prevPosts =>
+    prevPosts.map(post =>
+      post.postId === postId
+        ? {
+            ...post,
+            likes: likedPosts.includes(postId)
+              ? Math.max(0, (post.likes || 0) - 1)
+              : (post.likes || 0) + 1,
+          }
+        : post
+    )
+  );
+
+  // API call (no delay in UI)
+  try {
+    await api.likePost(postId);
+  } catch (error) {
+    console.error('Failed to like post:', error);
+  }
+};
+
 
   const handleSavePost = async (formData) => {
     try {
@@ -407,6 +426,38 @@ export const Home = () => {
           onClose={() => setShowEditor(false)}
           onSave={handleSavePost}
         />
+      )}
+
+        {/* Sign In Modal */}
+      {showSignInModal && (
+        <div
+          className="fixed inset-0 flex items-center justify-center z-50 p-4 bg-black/30 backdrop-blur-sm transition-all duration-300 animate-fadeIn"
+          onClick={() => setShowSignInModal(false)}
+        >
+          <div
+            className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 sm:p-8 relative transform transition-all duration-300 animate-slideUp"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setShowSignInModal(false)}
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-all duration-300 hover:rotate-90 hover:scale-110"
+            >
+              <X className="w-6 h-6" />
+            </button>
+
+            <div className="text-center mb-6">
+              <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-red-600 to-red-700 rounded-full mb-4 shadow-lg">
+                <Newspaper className="w-8 h-8 text-white" />
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                Welcome to IDS News Nepal
+              </h2>
+              <p className="text-gray-600">Sign in to access all features</p>
+            </div>
+
+            <GoogleSignIn onSuccess={() => setShowSignInModal(false)} />
+          </div>
+        </div>
       )}
       
       <style jsx>{`
