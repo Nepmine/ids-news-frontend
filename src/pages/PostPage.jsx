@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect ,useRef} from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   Heart,
@@ -88,30 +88,35 @@ export const PostPage = () => {
     }
   };
 
-let isProcessing = false;
 
+  const isProcessingRef = useRef(false);
 const handleLike = () => {
-  if (isProcessing) return; // avoid double trigger
-  isProcessing = true;
-  setTimeout(() => (isProcessing = false), 300);
+  if (isProcessingRef.current) return;
+  isProcessingRef.current = true;
+  setTimeout(() => {
+    isProcessingRef.current = false;
+  }, 300);
 
   if (!user) {
     setShowSignInModal(true);
     return;
   }
 
-  // --- UI update ---
-  setIsLiked((prevLiked) => {
-    setPost((prevPost) => ({
-      ...prevPost,
-      likes: prevLiked ? prevPost.likes - 1 : prevPost.likes + 1,
-    }));
-    return !prevLiked;
-  });
+  const newLikedState = !isLiked; // determine upfront
 
-  // --- Fire API ---
+  // --- Optimistic UI update ---
+  setIsLiked(newLikedState);
+  setPost((prevPost) => ({
+    ...prevPost,
+    likes: prevPost.likes + (newLikedState ? 1 : -1),
+  }));
+
+  // --- Fire API silently ---
   api.likePost(postId).catch((err) => console.error("Like API failed:", err));
 };
+
+
+// Define this at the top of your component
 
 
 

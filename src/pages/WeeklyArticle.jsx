@@ -1,8 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { TrendingUp, Plus, Clock, Eye } from 'lucide-react';
+import { TrendingUp, Plus, Clock, Eye ,X,Newspaper} from 'lucide-react';
 import { PostDetail } from '../components/posts/PostDetail';
 import { PostEditor } from '../components/posts/PostEditor';
 import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
+import { GoogleSignIn } from '../components/auth/GoogleSignIn';
+
+
 import { api } from '../services/api';
 
 export const WeeklyArticle = () => {
@@ -13,6 +17,10 @@ export const WeeklyArticle = () => {
   const [likedArticles, setLikedArticles] = useState([]);
   const [selectedArticleId, setSelectedArticleId] = useState(null);
   const [showEditor, setShowEditor] = useState(false);
+      const [showSignInModal, setShowSignInModal] = useState(false);
+  
+    const navigate = useNavigate();
+
 
   useEffect(() => {
     loadArticles();
@@ -47,26 +55,36 @@ export const WeeklyArticle = () => {
     }
   };
 
-  const handleLike = async (postId) => {
-    if (!user) {
-      alert('Please sign in to like articles');
-      return;
-    }
+const handleLike = async (postId) => {
+  if (!user) {
+    setShowSignInModal(true);
+    return;
+  }
+  // Instantly update UI
+  setArticles(prevArticles =>
+    prevArticles.map(article => {
+      if (article.postId === postId) {
+        const isLiked = likedArticles.includes(postId);
+        const updatedLikes = isLiked 
+          ? (article.likes || 0) - 1 
+          : (article.likes || 0) + 1;
+        return { ...article, likes: updatedLikes };
+      }
+      return article;
+    })
+  );
 
-    try {
-      await api.likePost(postId);
-      
-      setLikedArticles(prev =>
-        prev.includes(postId)
-          ? prev.filter(id => id !== postId)
-          : [...prev, postId]
-      );
-      
-      loadArticles();
-    } catch (error) {
-      console.error('Failed to like article:', error);
-    }
-  };
+  // Toggle liked state instantly
+  setLikedArticles(prev =>
+    prev.includes(postId)
+      ? prev.filter(id => id !== postId)
+      : [...prev, postId]
+  );
+
+  // Fire-and-forget API call (no response handling)
+  api.likePost(postId).catch(err => console.error('Like API failed:', err));
+};
+
 
   const handleSaveArticle = async (formData) => {
     try {
@@ -150,7 +168,7 @@ export const WeeklyArticle = () => {
             </div>
             
             <div
-              onClick={() => setSelectedArticleId(featuredArticle.postId)}
+              onClick={() => navigate(`/post/${featuredArticle.postId}`)}
               className="bg-white rounded-2xl shadow-xl overflow-hidden cursor-pointer hover:shadow-2xl transition-all duration-500 group relative"
             >
               <div className="md:flex md:h-[500px]">
@@ -306,7 +324,7 @@ export const WeeklyArticle = () => {
               {regularArticles.map((article) => (
                 <div
                   key={article.postId}
-                  onClick={() => setSelectedArticleId(article.postId)}
+              onClick={() => navigate(`/post/${featuredArticle.postId}`)}
                   className="bg-white rounded-xl shadow-md overflow-hidden cursor-pointer hover:shadow-xl transition-all duration-300 group flex flex-col"
                 >
                   <div className="h-56 overflow-hidden relative">
@@ -378,6 +396,38 @@ export const WeeklyArticle = () => {
           </div>
         )}
       </div>
+
+           {/* Sign In Modal */}
+      {showSignInModal && (
+        <div
+          className="fixed inset-0 flex items-center justify-center z-50 p-4 bg-black/30 backdrop-blur-sm transition-all duration-300 animate-fadeIn"
+          onClick={() => setShowSignInModal(false)}
+        >
+          <div
+            className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 sm:p-8 relative transform transition-all duration-300 animate-slideUp"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setShowSignInModal(false)}
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-all duration-300 hover:rotate-90 hover:scale-110"
+            >
+              <X className="w-6 h-6" />
+            </button>
+
+            <div className="text-center mb-6">
+              <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-red-600 to-red-700 rounded-full mb-4 shadow-lg">
+                <Newspaper className="w-8 h-8 text-white" />
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                Welcome to IDS News Nepal
+              </h2>
+              <p className="text-gray-600">Sign in to access all features</p>
+            </div>
+
+            <GoogleSignIn onSuccess={() => setShowSignInModal(false)} />
+          </div>
+        </div>
+      )}
 
       {/* Modals */}
       {selectedArticleId && (

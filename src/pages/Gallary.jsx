@@ -1,6 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, ChevronLeft, ChevronRight, X, Upload, Heart, Trash2, MoreVertical } from 'lucide-react';
+import { Plus, ChevronLeft, ChevronRight, X,Newspaper, Upload, Heart, Trash2, MoreVertical } from 'lucide-react';
 import { uploadToCloudinary } from '../services/cloudinary';
+import toast from 'react-hot-toast';
+
+import { useAuth } from '../context/AuthContext';
+import { GoogleSignIn } from '../components/auth/GoogleSignIn';
+
+
 import { api } from '../services/api';
 
 const ImageLoadingSpinner = () => (
@@ -80,7 +86,7 @@ const ImageViewModal = ({ images, initialIndex, onClose, likes, galleryId, onLik
       }
     } catch (error) {
       console.error('Failed to delete image:', error);
-      alert('Failed to delete image');
+      toast.error("Failed to delete image");
     } finally {
       setDeleteLoading(false);
       setShowMenu(false);
@@ -96,7 +102,7 @@ const ImageViewModal = ({ images, initialIndex, onClose, likes, galleryId, onLik
       onClose();
     } catch (error) {
       console.error('Failed to delete gallery:', error);
-      alert('Failed to delete gallery');
+      toast.error('Failed to delete gallery');
     } finally {
       setDeleteLoading(false);
       setShowMenu(false);
@@ -269,6 +275,7 @@ const GalleryCard = ({ gallery, onLike, isLiked, onImageClick, isAuthor, onDelet
   const [imageLoading, setImageLoading] = useState(true);
   const [showMenu, setShowMenu] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
+  
   const [isLiking, setIsLiking] = useState(false);
   const [showHearts, setShowHearts] = useState(false);
 
@@ -319,7 +326,7 @@ const GalleryCard = ({ gallery, onLike, isLiked, onImageClick, isAuthor, onDelet
       await onDeleteGallery(gallery.galleryId);
     } catch (error) {
       console.error('Failed to delete gallery:', error);
-      alert('Failed to delete gallery');
+      toast.error('Failed to delete gallery');
     } finally {
       setDeleteLoading(false);
       setShowMenu(false);
@@ -485,7 +492,7 @@ const GalleryUploadModal = ({ onClose, onSave }) => {
 
   const handleSubmit = async () => {
     if (images.length === 0) {
-      alert('Please upload at least one image');
+      toast('Please upload at least one image');
       return;
     }
 
@@ -503,7 +510,7 @@ const GalleryUploadModal = ({ onClose, onSave }) => {
       await onSave({ imageUrls });
     } catch (error) {
       console.error('Upload error:', error);
-      alert('Failed to upload images: ' + error.message);
+      toast.error('Failed to upload images: ');
     } finally {
       setUploading(false);
       setUploadProgress({ current: 0, total: 0 });
@@ -618,8 +625,12 @@ export const GallerySection = () => {
   const [galleries, setGalleries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [likedGalleries, setLikedGalleries] = useState([]);
+    const { user } = useAuth();
+  
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [selectedGallery, setSelectedGallery] = useState(null);
+          const [showSignInModal, setShowSignInModal] = useState(false);
+
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [isAuthor, setIsAuthor] = useState(false);
 
@@ -662,6 +673,10 @@ export const GallerySection = () => {
 
   const handleLike = async (galleryId) => {
     try {
+     if (!user) {
+    setShowSignInModal(true);
+    return;
+  }
       await api.likeGallery(galleryId);
       setLikedGalleries(prev =>
         prev.includes(galleryId)
@@ -691,7 +706,7 @@ export const GallerySection = () => {
     try {
       await api.deleteGallery(galleryId);
       setGalleries(prev => prev.filter(g => g.galleryId !== galleryId));
-      alert('Gallery deleted successfully');
+      toast.success('Gallery deleted successfully');
     } catch (error) {
       console.error('Failed to delete gallery:', error);
       throw error;
@@ -725,7 +740,7 @@ export const GallerySection = () => {
         }
       }
 
-      alert('Image deleted successfully');
+      toast.success('Image deleted successfully');
     } catch (error) {
       console.error('Failed to delete image:', error);
       throw error;
@@ -735,12 +750,12 @@ export const GallerySection = () => {
   const handleSaveGallery = async (formData) => {
     try {
       await api.createGallery(formData.imageUrls);
-      alert('Photos uploaded successfully!');
+      toast.success('Photos uploaded successfully!');
       setShowUploadModal(false);
       loadGalleries();
     } catch (error) {
       console.error('Failed to save gallery:', error);
-      alert('Failed to save gallery: ' + error.message);
+      toast.error('Failed to save gallery: ' );
     }
   };
 
@@ -824,6 +839,9 @@ export const GallerySection = () => {
         )}
       </div>
 
+
+      
+
       {/* Modals */}
       {showUploadModal && (
         <GalleryUploadModal
@@ -831,6 +849,41 @@ export const GallerySection = () => {
           onSave={handleSaveGallery}
         />
       )}
+
+      
+              {/* Sign In Modal */}
+            {showSignInModal && (
+              <div
+                className="fixed inset-0 flex items-center justify-center z-50 p-4 bg-black/30 backdrop-blur-sm transition-all duration-300 animate-fadeIn"
+                onClick={() => setShowSignInModal(false)}
+              >
+                <div
+                  className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 sm:p-8 relative transform transition-all duration-300 animate-slideUp"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <button
+                    onClick={() => setShowSignInModal(false)}
+                    className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-all duration-300 hover:rotate-90 hover:scale-110"
+                  >
+                    <X className="w-6 h-6" />
+                  </button>
+      
+                  <div className="text-center mb-6">
+                    <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-red-600 to-red-700 rounded-full mb-4 shadow-lg">
+                      <Newspaper className="w-8 h-8 text-white" />
+                    </div>
+                    <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                      Welcome to IDS News Nepal
+                    </h2>
+                    <p className="text-gray-600">Sign in to access all features</p>
+                  </div>
+      
+                  <GoogleSignIn onSuccess={() => setShowSignInModal(false)} />
+                </div>
+              </div>
+            )}
+      
+
 
       {selectedGallery && (
         <ImageViewModal
