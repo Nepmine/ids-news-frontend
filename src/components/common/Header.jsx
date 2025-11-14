@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, LogOut, User, X, Newspaper, TrendingUp, Trophy, Landmark, Briefcase, Calendar, Image, Info, Clock } from 'lucide-react';
+import { Menu, LogOut, User, X, Newspaper, TrendingUp, Trophy, Landmark, Briefcase, Calendar, Image, Info, Clock, Earth, Globe } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { GoogleSignIn } from '../auth/GoogleSignIn';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -71,6 +71,7 @@ export const Header = ({ onMenuClick }) => {
     { path: '/sports', label: 'Sports', icon: Trophy, description: 'Sports news & scores' },
     { path: '/politics', label: 'Politics', icon: Landmark, description: 'Political coverage' },
     { path: '/business', label: 'Business', icon: Briefcase, description: 'Business & economy' },
+    // { path: '/world', label: 'World', icon: Globe, description: 'Updates across the globe' },
   ];
 
   return (

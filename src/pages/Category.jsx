@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Trophy, Landmark, Briefcase, TrendingUp, Clock, Eye, Heart, ArrowLeft, Plus } from 'lucide-react';
+import { Trophy, Landmark, Briefcase, TrendingUp, ArrowLeft, Plus } from 'lucide-react';
 import { api } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { PostEditor } from '../components/posts/PostEditor';
+import { PostCard } from '../components/posts/PostCard';
+
 
 export const CategoryPage = () => {
   const params = useParams();
   const location = window.location.pathname;
-  // Extract category from URL path (e.g., /sports -> sports)
   const category = params.category || location.split('/')[1];
   
   const navigate = useNavigate();
@@ -18,6 +19,7 @@ export const CategoryPage = () => {
   const [error, setError] = useState(null);
   const [likedPosts, setLikedPosts] = useState([]);
   const [showEditor, setShowEditor] = useState(false);
+  const [editingPost, setEditingPost] = useState(null);
 
   // Category configurations
   const categoryConfig = {
@@ -25,37 +27,29 @@ export const CategoryPage = () => {
       icon: Trophy,
       title: 'Sports',
       description: 'Latest sports news, scores, and highlights from around the world',
-      gradient: 'from-red-500 via-red-600 to-red-700',
       iconBg: 'bg-red-100',
       iconColor: 'text-red-600',
-      badge: 'bg-red-600'
     },
     politics: {
       icon: Landmark,
       title: 'Politics',
       description: 'Political news, analysis, and coverage of current affairs',
-      gradient: 'from-red-500 via-red-600 to-red-700',
       iconBg: 'bg-red-100',
       iconColor: 'text-red-600',
-      badge: 'bg-red-600'
     },
     business: {
       icon: Briefcase,
       title: 'Business',
       description: 'Business news, market updates, and economic insights',
-      gradient: 'from-red-500 via-red-600 to-red-700',
       iconBg: 'bg-red-100',
       iconColor: 'text-red-600',
-      badge: 'bg-red-600'
     },
     trending: {
       icon: TrendingUp,
       title: 'Trending',
       description: 'What\'s hot right now - trending stories and viral news',
-      gradient: 'from-red-500 via-red-600 to-red-700',
       iconBg: 'bg-red-100',
       iconColor: 'text-red-600',
-      badge: 'bg-red-600'
     }
   };
 
@@ -63,10 +57,8 @@ export const CategoryPage = () => {
     icon: TrendingUp,
     title: category?.charAt(0).toUpperCase() + category?.slice(1) || 'News',
     description: `Latest ${category || 'news'} and updates`,
-    gradient: 'from-red-500 via-red-600 to-red-700',
     iconBg: 'bg-red-100',
     iconColor: 'text-red-600',
-    badge: 'bg-red-600'
   };
 
   const Icon = config.icon;
@@ -99,7 +91,6 @@ export const CategoryPage = () => {
         setLikedPosts(data.map(p => p.postId));
       }
     } catch (error) {
-      // Silently fail if user hasn't liked any posts yet
       console.log('No liked posts found');
     }
   };
@@ -126,38 +117,58 @@ export const CategoryPage = () => {
     }
   };
 
+  const handleCreatePost = () => {
+    setEditingPost(null);
+    setShowEditor(true);
+  };
+
+  const handleEditPost = (post) => {
+    setEditingPost(post);
+    setShowEditor(true);
+  };
+
   const handleSavePost = async (formData) => {
     try {
-      // Ensure the category is included
-      if (!formData.category.includes(category)) {
-        formData.category.push(category);
+      if (editingPost) {
+        // Update existing post
+        await api.updatePost({
+          postId: editingPost.postId,
+          ...formData
+        });
+        alert('Post updated successfully!');
+      } else {
+        // Create new post
+        if (!formData.category.includes(category)) {
+          formData.category.push(category);
+        }
+        await api.createPost(formData, 'post');
+        alert('Post created successfully!');
       }
-      await api.createPost(formData, 'post');
-      alert('Post created successfully!');
+      
       setShowEditor(false);
+      setEditingPost(null);
       loadCategoryPosts();
     } catch (error) {
-      console.error('Failed to create post:', error);
-      alert('Failed to create post: ' + error.message);
+      console.error('Failed to save post:', error);
+      alert('Failed to save post: ' + error.message);
       throw error;
     }
   };
 
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffTime = Math.abs(now - date);
-    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-    
-    if (diffDays === 0) return 'Today';
-    if (diffDays === 1) return 'Yesterday';
-    if (diffDays < 7) return `${diffDays} days ago`;
-    
-    return date.toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric'
-    });
+  const handleDeletePost = async (postId) => {
+    try {
+      await api.deletePost(postId);
+      alert('Post deleted successfully!');
+      loadCategoryPosts();
+    } catch (error) {
+      console.error('Failed to delete post:', error);
+      alert('Failed to delete post: ' + error.message);
+    }
+  };
+
+  const handleCloseEditor = () => {
+    setShowEditor(false);
+    setEditingPost(null);
   };
 
   if (loading) {
@@ -191,7 +202,7 @@ export const CategoryPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Redesigned Hero Section - Clean & Minimal */}
+      {/* Hero Section */}
       <div className="bg-white border-b-4 border-red-600 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 py-8">
           <div className="flex items-center justify-between">
@@ -230,7 +241,7 @@ export const CategoryPage = () => {
               
               {isAuthor && (
                 <button
-                  onClick={() => setShowEditor(true)}
+                  onClick={handleCreatePost}
                   className="bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition flex items-center font-semibold shadow-md"
                 >
                   <Plus className="w-5 h-5 mr-2" />
@@ -244,7 +255,7 @@ export const CategoryPage = () => {
           {isAuthor && (
             <div className="md:hidden mt-4">
               <button
-                onClick={() => setShowEditor(true)}
+                onClick={handleCreatePost}
                 className="w-full bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition flex items-center justify-center font-semibold"
               >
                 <Plus className="w-5 h-5 mr-2" />
@@ -262,97 +273,36 @@ export const CategoryPage = () => {
             {/* Featured Post (First) */}
             {posts[0] && (
               <div className="mb-12">
-                <div
+                <PostCard
+                  post={posts[0]}
+                  isLiked={likedPosts.includes(posts[0].postId)}
+                  onLike={handleLike}
                   onClick={() => navigate(`/post/${posts[0].postId}`)}
-                  className="bg-white rounded-xl shadow-lg overflow-hidden cursor-pointer hover:shadow-2xl transition-all duration-300 group"
-                >
-                  <div className="md:flex">
-                    <div className="md:w-2/3 h-96 relative overflow-hidden">
-                      <img
-                        src={posts[0].frontImageUrl || 'https://images.unsplash.com/photo-1504711434969-e33886168f5c'}
-                        alt={posts[0].title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                      <div className="absolute top-4 left-4">
-                        <span className={`${config.badge} px-3 py-1 rounded-full text-sm font-semibold text-white shadow-lg`}>
-                          Featured
-                        </span>
-                      </div>
-                    </div>
-                    
-                    <div className="md:w-1/3 p-8 flex flex-col justify-center">
-                      <h3 className="text-3xl font-bold text-gray-900 mb-4 group-hover:text-red-600 transition">
-                        {posts[0].title}
-                      </h3>
-                      <p className="text-gray-600 text-lg mb-6 line-clamp-3">
-                        {posts[0].headline}
-                      </p>
-                      <div className="flex items-center justify-between pt-4 border-t">
-                        <button 
-                          onClick={(e) => handleLike(posts[0].postId, e)}
-                          className={`flex items-center ${likedPosts.includes(posts[0].postId) ? 'text-red-600' : 'text-gray-600'} hover:text-red-600 transition`}
-                        >
-                          <Heart 
-                            className={`w-6 h-6 mr-2 ${likedPosts.includes(posts[0].postId) ? 'fill-current' : ''}`}
-                          />
-                          <span className="font-semibold">{posts[0].likes || 0}</span>
-                        </button>
-                        <span className="text-sm text-gray-500 flex items-center">
-                          <Clock className="w-4 h-4 mr-1" />
-                          {formatDate(posts[0].createdAt)}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                  variant="featured"
+                  index={0}
+                  isAuthor={isAuthor}
+                  onEdit={handleEditPost}
+                  onDelete={handleDeletePost}
+                />
               </div>
             )}
 
             {/* Regular Posts Grid */}
             {posts.length > 1 && (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {posts.slice(1).map((post) => (
-                  <div
+                {posts.slice(1).map((post, index) => (
+                  <PostCard
                     key={post.postId}
+                    post={post}
+                    isLiked={likedPosts.includes(post.postId)}
+                    onLike={handleLike}
                     onClick={() => navigate(`/post/${post.postId}`)}
-                    className="bg-white rounded-xl shadow-md overflow-hidden cursor-pointer hover:shadow-xl transition-all duration-300 group flex flex-col"
-                  >
-                    <div className="h-56 overflow-hidden relative">
-                      <img
-                        src={post.frontImageUrl || 'https://images.unsplash.com/photo-1504711434969-e33886168f5c'}
-                        alt={post.title}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                      />
-                      <div className={`absolute top-4 right-4 ${config.badge} text-white px-3 py-1 rounded-full text-sm font-semibold shadow-lg`}>
-                        {formatDate(post.createdAt)}
-                      </div>
-                    </div>
-                    
-                    <div className="p-6 flex flex-col flex-1">
-                      <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-red-600 transition line-clamp-2">
-                        {post.title}
-                      </h3>
-                      <p className="text-gray-600 mb-4 line-clamp-2 flex-1">
-                        {post.headline}
-                      </p>
-                      
-                      <div className="flex items-center justify-between pt-4 border-t">
-                        <button 
-                          onClick={(e) => handleLike(post.postId, e)}
-                          className={`flex items-center ${likedPosts.includes(post.postId) ? 'text-red-600' : 'text-gray-500'} hover:text-red-600 transition`}
-                        >
-                          <Heart 
-                            className={`w-5 h-5 mr-1 ${likedPosts.includes(post.postId) ? 'fill-current' : ''}`}
-                          />
-                          <span className="font-semibold">{post.likes || 0}</span>
-                        </button>
-                        <span className="text-sm text-gray-500">
-                          Read more →
-                        </span>
-                      </div>
-                    </div>
-                  </div>
+                    variant="regular"
+                    index={index + 1}
+                    isAuthor={isAuthor}
+                    onEdit={handleEditPost}
+                    onDelete={handleDeletePost}
+                  />
                 ))}
               </div>
             )}
@@ -365,7 +315,7 @@ export const CategoryPage = () => {
             <p className="text-gray-600 mb-6">Be the first to share a {config.title.toLowerCase()} story</p>
             {isAuthor && (
               <button
-                onClick={() => setShowEditor(true)}
+                onClick={handleCreatePost}
                 className="bg-red-600 text-white px-8 py-3 rounded-lg hover:bg-red-700 transition font-semibold inline-flex items-center"
               >
                 <Plus className="w-5 h-5 mr-2" />
@@ -378,7 +328,8 @@ export const CategoryPage = () => {
 
       {showEditor && (
         <PostEditor
-          onClose={() => setShowEditor(false)}
+          post={editingPost}
+          onClose={handleCloseEditor}
           onSave={handleSavePost}
         />
       )}

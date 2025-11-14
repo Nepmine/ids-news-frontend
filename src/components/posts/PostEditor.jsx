@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Camera, X, Save, Loader, Tag, Eye, Edit3, Maximize2 } from 'lucide-react';
+import { Camera, X, Save, Loader, Tag, Eye, Edit3 } from 'lucide-react';
 import { uploadToCloudinary } from '../../services/cloudinary';
 
 export const PostEditor = ({ post, onClose, onSave, contentType = 'post' }) => {
@@ -8,7 +8,7 @@ export const PostEditor = ({ post, onClose, onSave, contentType = 'post' }) => {
     headline: post?.headline || '',
     frontImageUrl: post?.frontImageUrl || '',
     content: post?.content || '',
-    category: post?.category || [],
+    category: post?.category || ['home'], // Default to 'home' for new posts
   });
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -26,11 +26,35 @@ export const PostEditor = ({ post, onClose, onSave, contentType = 'post' }) => {
     { id: 'sports', label: 'Sports' },
     { id: 'politics', label: 'Politics' },
     { id: 'business', label: 'Business' },
-    { id: 'technology', label: 'Technology' },
-    { id: 'entertainment', label: 'Entertainment' },
-    { id: 'health', label: 'Health' },
-    { id: 'world', label: 'World' },
+    // { id: 'technology', label: 'Technology' },
+    // { id: 'entertainment', label: 'Entertainment' },
+    // { id: 'health', label: 'Health' },
+    // { id: 'world', label: 'World' },
   ];
+
+  // Update form data when post prop changes (for editing)
+  useEffect(() => {
+    if (post) {
+      console.log('📝 Post prop received, updating formData:', {
+        hasContent: !!post.content,
+        categories: post.category
+      });
+      
+      setFormData({
+        title: post.title || '',
+        headline: post.headline || '',
+        frontImageUrl: post.frontImageUrl || '',
+        content: post.content || '',
+        category: post.category || ['home'], // Keep 'home' as default even when editing
+      });
+
+      // Update Quill content if editor is already initialized
+      if (quillRef.current && post.content) {
+        console.log('🔄 Updating Quill with post content');
+        quillRef.current.root.innerHTML = post.content;
+      }
+    }
+  }, [post]);
 
   // Initialize Quill editor
   useEffect(() => {
@@ -170,24 +194,6 @@ export const PostEditor = ({ post, onClose, onSave, contentType = 'post' }) => {
 
     // Show image size dialog
     function showImageSizeDialog(imageIndex) {
-      // Get the image element position
-      const editorElement = quillRef.current.root;
-      const images = editorElement.querySelectorAll('img');
-      let targetImage = null;
-      
-      // Find the newly inserted image
-      const delta = quill.getContents();
-      let currentIndex = 0;
-      for (let i = 0; i < delta.ops.length; i++) {
-        if (delta.ops[i].insert?.image) {
-          if (currentIndex === Math.floor(imageIndex)) {
-            targetImage = images[Math.floor(imageIndex)];
-            break;
-          }
-          currentIndex++;
-        }
-      }
-      
       const modal = document.createElement('div');
       modal.className = 'fixed inset-0 z-50 flex items-center justify-center p-4';
       modal.style.backgroundColor = 'rgba(0, 0, 0, 0.1)';
@@ -247,12 +253,10 @@ export const PostEditor = ({ post, onClose, onSave, contentType = 'post' }) => {
         btn.onclick = () => {
           const size = btn.getAttribute('data-size');
           
-          // Get the image element
           const delta = quill.getContents(imageIndex, 1);
           if (delta.ops[0]?.insert?.image) {
             quill.formatText(imageIndex, 1, 'width', getWidthForSize(size));
             
-            // Update button styles - visual representation
             modal.querySelectorAll('[data-size]').forEach(b => {
               b.className = 'flex flex-col items-center justify-center px-2 py-3 border-2 border-gray-200 rounded-lg hover:border-red-500 hover:bg-red-50 text-xs font-medium transition-all';
               const bg = b.querySelector('div');
@@ -296,12 +300,12 @@ export const PostEditor = ({ post, onClose, onSave, contentType = 'post' }) => {
 
     // Set initial content if exists
     if (formData.content) {
-      console.log('📝 Setting initial content');
+      console.log('📝 Setting initial content in Quill');
       quill.root.innerHTML = formData.content;
     }
 
     quillRef.current = quill;
-    console.log('✅ Quill editor initialized');
+    console.log('✅ Quill editor initialized with content:', !!formData.content);
   }, []);
 
   // Restore content when switching back from preview
@@ -337,7 +341,6 @@ export const PostEditor = ({ post, onClose, onSave, contentType = 'post' }) => {
     if (!container || !quillRef.current) return;
 
     const handleContainerClick = (e) => {
-      // If clicked on the container but not on the editor itself
       if (e.target === container || e.target.classList.contains('ql-container')) {
         quillRef.current.focus();
       }
@@ -582,7 +585,6 @@ export const PostEditor = ({ post, onClose, onSave, contentType = 'post' }) => {
           <div className={`p-6 max-h-[calc(100vh-200px)] overflow-y-auto ${showPreview ? '' : 'hidden'}`}>
             <div className="bg-gray-50 rounded-xl p-8">
               <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-                {/* Cover Image Preview */}
                 {formData.frontImageUrl && (
                   <img
                     src={formData.frontImageUrl}
@@ -592,17 +594,14 @@ export const PostEditor = ({ post, onClose, onSave, contentType = 'post' }) => {
                 )}
                 
                 <div className="p-8">
-                  {/* Title Preview */}
                   <h1 className="text-4xl font-bold text-gray-900 mb-4">
                     {formData.title || 'Your Title Here'}
                   </h1>
                   
-                  {/* Headline Preview */}
                   <p className="text-xl text-gray-600 border-l-4 border-red-600 pl-6 mb-6">
                     {formData.headline || 'Your headline here'}
                   </p>
                   
-                  {/* Categories Preview */}
                   {formData.category.length > 0 && (
                     <div className="flex flex-wrap gap-2 mb-6">
                       {formData.category.map(cat => (
@@ -613,7 +612,6 @@ export const PostEditor = ({ post, onClose, onSave, contentType = 'post' }) => {
                     </div>
                   )}
                   
-                  {/* Content Preview */}
                   <div
                     className="prose prose-lg max-w-none prose-headings:font-bold prose-headings:text-gray-900 prose-p:text-gray-700 prose-p:leading-relaxed prose-a:text-red-600 prose-a:no-underline hover:prose-a:underline prose-strong:text-gray-900 prose-img:rounded-xl"
                     dangerouslySetInnerHTML={{ __html: formData.content || '<p class="text-gray-400">Start writing to see preview...</p>' }}
@@ -661,7 +659,7 @@ export const PostEditor = ({ post, onClose, onSave, contentType = 'post' }) => {
         </div>
       </div>
 
-      {/* Custom Styles for Image Sizing */}
+      {/* Custom Styles */}
       <style jsx>{`
         .ql-editor img {
           display: block;
@@ -715,4 +713,4 @@ export const PostEditor = ({ post, onClose, onSave, contentType = 'post' }) => {
       `}</style>
     </div>
   );
-}
+};

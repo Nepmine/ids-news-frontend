@@ -1,12 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { TrendingUp, Plus, Clock, Eye, Heart,X,Newspaper } from 'lucide-react';
-import { PostDetail } from '../components/posts/PostDetail';
+import { useState, useEffect } from 'react';
+import { TrendingUp, Plus, X, Newspaper } from 'lucide-react';
 import { PostEditor } from '../components/posts/PostEditor';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
 import { useNavigate } from 'react-router-dom';
 import { GoogleSignIn } from '../components/auth/GoogleSignIn';
-
+import { PostCard } from '../components/posts/PostCard';
 
 // Design System Constants
 const TRANSITIONS = {
@@ -25,12 +24,11 @@ export const Home = () => {
   const { user, isAuthor } = useAuth();
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
-    const [showSignInModal, setShowSignInModal] = useState(false);
-  
+  const [showSignInModal, setShowSignInModal] = useState(false);
   const [error, setError] = useState(null);
   const [likedPosts, setLikedPosts] = useState([]);
-  const [selectedPostId, setSelectedPostId] = useState(null);
   const [showEditor, setShowEditor] = useState(false);
+  const [editingPost, setEditingPost] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -66,71 +64,91 @@ export const Home = () => {
     }
   };
 
-const handleLike = async (postId, e) => {
-  if (e) e.stopPropagation();
+  const handleLike = async (postId, e) => {
+    if (e) e.stopPropagation();
 
-  if (!user) {
-    setShowSignInModal(true);
-    return;
-  }
+    if (!user) {
+      setShowSignInModal(true);
+      return;
+    }
 
-  // Update UI immediately (optimistic update)
-  setLikedPosts(prev =>
-    prev.includes(postId)
-      ? prev.filter(id => id !== postId)
-      : [...prev, postId]
-  );
+    // Update UI immediately (optimistic update)
+    setLikedPosts(prev =>
+      prev.includes(postId)
+        ? prev.filter(id => id !== postId)
+        : [...prev, postId]
+    );
 
-  setPosts(prevPosts =>
-    prevPosts.map(post =>
-      post.postId === postId
-        ? {
-            ...post,
-            likes: likedPosts.includes(postId)
-              ? Math.max(0, (post.likes || 0) - 1)
-              : (post.likes || 0) + 1,
-          }
-        : post
-    )
-  );
+    setPosts(prevPosts =>
+      prevPosts.map(post =>
+        post.postId === postId
+          ? {
+              ...post,
+              likes: likedPosts.includes(postId)
+                ? Math.max(0, (post.likes || 0) - 1)
+                : (post.likes || 0) + 1,
+            }
+          : post
+      )
+    );
 
-  // API call (no delay in UI)
-  try {
-    await api.likePost(postId);
-  } catch (error) {
-    console.error('Failed to like post:', error);
-  }
-};
+    // API call (no delay in UI)
+    try {
+      await api.likePost(postId);
+    } catch (error) {
+      console.error('Failed to like post:', error);
+    }
+  };
 
+  const handleCreatePost = () => {
+    setEditingPost(null);
+    setShowEditor(true);
+  };
+
+  const handleEditPost = (post) => {
+    setEditingPost(post);
+    setShowEditor(true);
+  };
 
   const handleSavePost = async (formData) => {
     try {
-      await api.createPost(formData, 'post');
-      alert('Post created successfully!');
+      if (editingPost) {
+        // Update existing post
+        await api.updatePost({
+          postId: editingPost.postId,
+          ...formData
+        });
+        alert('Post updated successfully!');
+      } else {
+        // Create new post
+        await api.createPost(formData, 'post');
+        alert('Post created successfully!');
+      }
+      
       setShowEditor(false);
+      setEditingPost(null);
       loadPosts();
     } catch (error) {
-      console.error('Failed to create post:', error);
-      alert('Failed to create post: ' + error.message);
+      console.error('Failed to save post:', error);
+      alert('Failed to save post: ' + error.message);
       throw error;
     }
   };
 
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffTime = Math.abs(now - date);
-    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-    
-    if (diffDays === 0) return 'Today';
-    if (diffDays === 1) return 'Yesterday';
-    if (diffDays < 7) return `${diffDays} days ago`;
-    
-    return date.toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric'
-    });
+  const handleDeletePost = async (postId) => {
+    try {
+      await api.deletePost(postId);
+      alert('Post deleted successfully!');
+      loadPosts();
+    } catch (error) {
+      console.error('Failed to delete post:', error);
+      alert('Failed to delete post: ' + error.message);
+    }
+  };
+
+  const handleCloseEditor = () => {
+    setShowEditor(false);
+    setEditingPost(null);
   };
 
   if (loading) {
@@ -182,7 +200,7 @@ const handleLike = async (postId, e) => {
             </div>
             {isAuthor && (
               <button
-                onClick={() => setShowEditor(true)}
+                onClick={handleCreatePost}
                 className={`
                   bg-white text-red-600 px-6 py-3 md:px-8 md:py-4 rounded-lg 
                   hover:bg-red-50 ${TRANSITIONS.normal} ${HOVER_EFFECTS.scale}
@@ -208,110 +226,16 @@ const handleLike = async (postId, e) => {
               <h2 className="text-3xl font-bold text-gray-900">Featured Story</h2>
             </div>
             
-            <div 
+            <PostCard
+              post={featuredPost}
+              isLiked={likedPosts.includes(featuredPost.postId)}
+              onLike={handleLike}
               onClick={() => navigate(`/post/${featuredPost.postId}`)}
-              className={`
-                bg-white rounded-2xl shadow-lg overflow-hidden cursor-pointer 
-                ${TRANSITIONS.normal} ${HOVER_EFFECTS.lift}
-                hover:shadow-2xl hover:shadow-red-500/10
-                group relative
-              `}
-            >
-              <div className="md:flex md:h-[500px]">
-                {/* Featured Image */}
-                <div className="md:w-3/5 h-80 md:h-full relative overflow-hidden">
-                  <img
-                    src={featuredPost.frontImageUrl || 'https://images.unsplash.com/photo-1504711434969-e33886168f5c'}
-                    alt={featuredPost.title}
-                    className={`w-full h-full object-cover ${TRANSITIONS.verySlow} group-hover:scale-110 group-hover:rotate-1`}
-                  />
-                  <div className={`absolute inset-0 bg-gradient-to-t from-black/70 to-transparent ${TRANSITIONS.normal}`}></div>
-                  
-                  {/* Floating Featured Badge */}
-                  <div className="absolute top-6 left-6">
-                    <span className={`
-                      bg-red-600 text-white px-4 py-2 rounded-full text-sm font-semibold 
-                      shadow-2xl flex items-center gap-2 ${TRANSITIONS.normal} group-hover:scale-110
-                    `}>
-                      <span className="w-2 h-2 bg-white rounded-full animate-pulse"></span>
-                      Featured
-                    </span>
-                  </div>
-                  
-                  {/* Date Badge */}
-                  <div className="absolute bottom-6 left-6">
-                    <span className={`bg-white/90 backdrop-blur-sm text-gray-900 px-3 py-1 rounded-full text-sm font-medium flex items-center gap-1 ${TRANSITIONS.normal}`}>
-                      <Clock className="w-4 h-4" />
-                      {formatDate(featuredPost.createdAt)}
-                    </span>
-                  </div>
-                </div>
-                
-                {/* Featured Content */}
-                <div className="md:w-2/5 p-8 md:p-10 flex flex-col justify-center bg-gradient-to-br from-white to-gray-50">
-                  <h3 className={`text-3xl md:text-4xl font-bold text-gray-900 mb-4 leading-tight ${TRANSITIONS.normal} group-hover:text-red-600`}>
-                    {featuredPost.title}
-                  </h3>
-                  
-                  <p className="text-gray-600 text-lg mb-6 leading-relaxed line-clamp-4">
-                    {featuredPost.headline}
-                  </p>
-                  
-                  {/* Animated Divider */}
-                  <div className={`w-16 h-1 bg-red-600 mb-6 ${TRANSITIONS.normal} group-hover:w-24`}></div>
-                  
-                  {/* Metadata */}
-                  <div className="flex items-center justify-between mb-6 text-sm text-gray-500">
-                    <div className="flex items-center gap-2">
-                      <Eye className="w-4 h-4" />
-                      <span>Featured Read</span>
-                    </div>
-                  </div>
-                  
-                  {/* Action Buttons */}
-                  <div className="flex items-center gap-4">
-                    <button
-                      onClick={(e) => handleLike(featuredPost.postId, e)}
-                      className={`
-                        flex items-center gap-2 px-4 py-2 rounded-lg font-semibold
-                        ${TRANSITIONS.normal} ${HOVER_EFFECTS.scale}
-                        ${likedPosts.includes(featuredPost.postId)
-                          ? 'bg-red-50 text-red-600'
-                          : 'bg-gray-100 text-gray-600 hover:bg-red-50 hover:text-red-600'
-                        }
-                      `}
-                    >
-                      <Heart
-                        className={`w-5 h-5 ${TRANSITIONS.normal} ${
-                          likedPosts.includes(featuredPost.postId) ? 'fill-current scale-110' : ''
-                        }`}
-                      />
-                      <span>{featuredPost.likes || 0}</span>
-                    </button>
-                    
-                    <button className={`
-                      flex-1 bg-red-600 text-white font-semibold py-2 px-6 rounded-lg 
-                      hover:bg-red-700 ${TRANSITIONS.normal}
-                      flex items-center justify-center gap-2 group/btn
-                      shadow-lg hover:shadow-xl
-                    `}>
-                      <span>Read Full Story</span>
-                      <svg
-                        className={`w-5 h-5 ${TRANSITIONS.normal} group-hover/btn:translate-x-1`}
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                      </svg>
-                    </button>
-                  </div>
-                </div>
-              </div>
-              
-              {/* Decorative Corner Element */}
-              <div className={`absolute -bottom-20 -right-20 w-40 h-40 bg-red-600 opacity-5 rounded-full ${TRANSITIONS.verySlow} group-hover:scale-150`}></div>
-            </div>
+              variant="featured"
+              isAuthor={isAuthor}
+              onEdit={handleEditPost}
+              onDelete={handleDeletePost}
+            />
           </div>
         )}
 
@@ -326,68 +250,18 @@ const handleLike = async (postId, e) => {
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {regularPosts.map((post, index) => (
-                <div
+                <PostCard
                   key={post.postId}
+                  post={post}
+                  isLiked={likedPosts.includes(post.postId)}
+                  onLike={handleLike}
                   onClick={() => navigate(`/post/${post.postId}`)}
-                  className={`
-                    bg-white rounded-xl shadow-md overflow-hidden cursor-pointer 
-                    ${TRANSITIONS.normal} ${HOVER_EFFECTS.lift}
-                    hover:shadow-xl group flex flex-col
-                  `}
-                  style={{ 
-                    animation: 'fadeInUp 0.5s ease-out forwards',
-                    animationDelay: `${index * 100}ms`,
-                    opacity: 0
-                  }}
-                >
-                  {/* Card Image */}
-                  <div className="h-56 overflow-hidden relative">
-                    <img
-                      src={post.frontImageUrl || 'https://images.unsplash.com/photo-1504711434969-e33886168f5c'}
-                      alt={post.title}
-                      className={`w-full h-full object-cover ${TRANSITIONS.verySlow} group-hover:scale-110`}
-                    />
-                    <div className="absolute top-4 right-4">
-                      <span className={`
-                        bg-red-600 text-white px-3 py-1 rounded-full text-sm font-semibold 
-                        shadow-lg ${TRANSITIONS.normal} group-hover:scale-110
-                      `}>
-                        {formatDate(post.createdAt)}
-                      </span>
-                    </div>
-                  </div>
-                  
-                  {/* Card Content */}
-                  <div className="p-6 flex flex-col flex-1">
-                    <h3 className={`text-xl font-bold text-gray-900 mb-3 group-hover:text-red-600 ${TRANSITIONS.normal} line-clamp-2`}>
-                      {post.title}
-                    </h3>
-                    <p className="text-gray-600 mb-4 line-clamp-2 flex-1">
-                      {post.headline}
-                    </p>
-                    
-                    {/* Card Footer */}
-                    <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                      <button 
-                        onClick={(e) => handleLike(post.postId, e)}
-                        className={`
-                          flex items-center gap-2 font-semibold
-                          ${TRANSITIONS.fast} ${HOVER_EFFECTS.scale}
-                          ${likedPosts.includes(post.postId) ? 'text-red-600' : 'text-gray-500 hover:text-red-600'}
-                        `}
-                      >
-                        <Heart 
-                          className={`w-5 h-5 ${TRANSITIONS.fast} ${likedPosts.includes(post.postId) ? 'fill-current' : ''}`}
-                        />
-                        <span>{post.likes || 0}</span>
-                      </button>
-                      <span className="text-sm text-gray-500 flex items-center gap-1">
-                        <Eye className="w-4 h-4" />
-                        {post.comments?.length || 0} comments
-                      </span>
-                    </div>
-                  </div>
-                </div>
+                  index={index}
+                  variant="regular"
+                  isAuthor={isAuthor}
+                  onEdit={handleEditPost}
+                  onDelete={handleDeletePost}
+                />
               ))}
             </div>
           </div>
@@ -405,7 +279,7 @@ const handleLike = async (postId, e) => {
             <p className="text-gray-600 mb-6">Be the first to share a story with our community</p>
             {isAuthor && (
               <button
-                onClick={() => setShowEditor(true)}
+                onClick={handleCreatePost}
                 className={`
                   bg-red-600 text-white px-8 py-3 rounded-lg 
                   hover:bg-red-700 ${TRANSITIONS.normal} ${HOVER_EFFECTS.scale}
@@ -423,12 +297,13 @@ const handleLike = async (postId, e) => {
       {/* Modals */}
       {showEditor && (
         <PostEditor
-          onClose={() => setShowEditor(false)}
+          post={editingPost}
+          onClose={handleCloseEditor}
           onSave={handleSavePost}
         />
       )}
 
-        {/* Sign In Modal */}
+      {/* Sign In Modal */}
       {showSignInModal && (
         <div
           className="fixed inset-0 flex items-center justify-center z-50 p-4 bg-black/30 backdrop-blur-sm transition-all duration-300 animate-fadeIn"
