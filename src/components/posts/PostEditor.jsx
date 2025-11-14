@@ -3,6 +3,8 @@ import { Camera, X, Save, Loader, Tag, Eye, Edit3 } from 'lucide-react';
 import { uploadToCloudinary } from '../../services/cloudinary';
 
 export const PostEditor = ({ post, onClose, onSave, contentType = 'post' }) => {
+
+  console.table(post)
   const [formData, setFormData] = useState({
     title: post?.title || '',
     headline: post?.headline || '',

@@ -1,54 +1,50 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Send } from 'lucide-react';
 
-export const CommentForm = ({ onSubmit, placeholder = 'Write a comment...' }) => {
+export const CommentForm = ({ onSubmit }) => {
   const [comment, setComment] = useState('');
-  const [submitting, setSubmitting] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = async () => {
-    if (!comment.trim()) return;
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!comment.trim() || isSubmitting) return;
 
-    setSubmitting(true);
+    setIsSubmitting(true);
     try {
-      await onSubmit(comment);
+      await onSubmit(comment.trim());
       setComment('');
     } catch (error) {
       console.error('Failed to submit comment:', error);
     } finally {
-      setSubmitting(false);
-    }
-  };
-
-  const handleKeyPress = (e) => {
-    if (e.key === 'Enter' && e.ctrlKey) {
-      handleSubmit();
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="bg-white border rounded-lg p-4">
-      <textarea
-        value={comment}
-        onChange={(e) => setComment(e.target.value)}
-        onKeyDown={handleKeyPress}
-        placeholder={placeholder}
-        className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent resize-none"
-        rows="3"
-        disabled={submitting}
-      />
-      <div className="flex items-center justify-between mt-3">
-        <p className="text-xs text-gray-500">
-          Press Ctrl+Enter to submit
-        </p>
+    <form onSubmit={handleSubmit} className="relative">
+      <div className="flex items-start gap-3 bg-white rounded-lg border border-gray-200 p-3 focus-within:border-red-400 focus-within:ring-2 focus-within:ring-red-100 transition-all">
+        <textarea
+          value={comment}
+          onChange={(e) => setComment(e.target.value)}
+          placeholder="Share your thoughts..."
+          className="flex-1 resize-none border-0 focus:outline-none text-gray-700 placeholder-gray-400 min-h-[44px] max-h-[120px] text-sm py-2"
+          rows="1"
+          onInput={(e) => {
+            e.target.style.height = 'auto';
+            e.target.style.height = Math.min(e.target.scrollHeight, 120) + 'px';
+          }}
+        />
         <button
-          onClick={handleSubmit}
-          disabled={!comment.trim() || submitting}
-          className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          type="submit"
+          disabled={!comment.trim() || isSubmitting}
+          className="flex-shrink-0 bg-red-600 text-white p-2.5 rounded-lg hover:bg-red-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all duration-200 hover:scale-105 active:scale-95"
         >
           <Send className="w-4 h-4" />
-          <span>{submitting ? 'Posting...' : 'Post Comment'}</span>
         </button>
       </div>
-    </div>
+      <p className="text-xs text-gray-500 mt-2 ml-1">
+        {comment.length} / 1000 characters
+      </p>
+    </form>
   );
 };

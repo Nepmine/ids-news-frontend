@@ -33,7 +33,8 @@ function AppContent() {
           <Route path="/sports" element={<CategoryPage />} />
           <Route path="/politics" element={<CategoryPage />} />
           <Route path="/business" element={<CategoryPage />} />
-        </Routes>
+          <Route path="*" element={<Home />} />
+          </Routes>
       </main>
 
       <Footer />

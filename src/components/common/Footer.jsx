@@ -1,4 +1,3 @@
-import React from 'react';
 import { Facebook, Twitter, Instagram, Mail, Phone, MapPin } from 'lucide-react';
 
 export const Footer = () => {
@@ -20,23 +19,26 @@ export const Footer = () => {
             </p>
             <div className="flex space-x-4">
               <a
-                href="#"
+                href="https://www.facebook.com/indepthstorynepal/"
                 className="text-gray-400 hover:text-red-400 transition"
                 aria-label="Facebook"
+                target="_blank"
               >
                 <Facebook className="w-5 h-5" />
               </a>
               <a
-                href="#"
+                href="https://x.com/in_depthstory"
                 className="text-gray-400 hover:text-red-400 transition"
                 aria-label="Twitter"
+                target="_blank"
               >
                 <Twitter className="w-5 h-5" />
               </a>
               <a
-                href="#"
+                href="https://www.instagram.com/indepthstory/"
                 className="text-gray-400 hover:text-red-400 transition"
                 aria-label="Instagram"
+                target="_blank"
               >
                 <Instagram className="w-5 h-5" />
               </a>
@@ -109,9 +111,6 @@ export const Footer = () => {
         <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
           <p>
             &copy; {currentYear} IDS Story Nepal. All rights reserved.
-          </p>
-          <p className="text-sm mt-2">
-            Made with ❤️ for the people of Nepal
           </p>
         </div>
       </div>

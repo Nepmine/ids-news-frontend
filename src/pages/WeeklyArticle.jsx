@@ -267,7 +267,7 @@ export const WeeklyArticle = () => {
 
             <div className="text-center mb-6">
               <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-red-600 to-red-700 rounded-full mb-4 shadow-lg">
-                <Newspaper className="w-8 h-8 text-white" />
+                <img src="resources/download.png" alt="" />
               </div>
               <h2 className="text-2xl font-bold text-gray-900 mb-2">
                 Welcome to IDS News Nepal

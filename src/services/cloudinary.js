@@ -44,6 +44,5 @@ export const getOptimizedImageUrl = (url, options = {}) => {
 };
 
 export const deleteFromCloudinary = async (publicId) => {
-  // Note: Deletion requires server-side implementation for security
-  console.warn('Image deletion should be handled on the backend');
+
 };

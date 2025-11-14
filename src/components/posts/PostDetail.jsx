@@ -1,243 +1,192 @@
-import React, { useState, useEffect } from 'react';
-import { X, Heart, Calendar, Share2, User, MessageCircle } from 'lucide-react';
-import { api } from '../../services/api';
-import { LoadingSpinner } from '../common/LoadingSpinner';
-import { CommentList } from '../comments/CommentList';
-import { CommentForm } from '../comments/CommentForm';
-import { AuthRequiredModal } from '../common/AuthRequiredModal';
+import React, { useState } from 'react';
+import {
+  Heart,
+  Calendar,
+  Share2,
+  Clock,
+  Facebook,
+  Twitter,
+  Linkedin,
+  Link2,
+} from 'lucide-react';
 
+export const PostDetail = ({
+  post,
+  isLiked,
+  onLike,
+  onShowSignInModal,
+  user,
+}) => {
+  const [showShareMenu, setShowShareMenu] = useState(false);
+  const [copySuccess, setCopySuccess] = useState(false);
 
-export const PostDetail = ({ postId, onClose, user }) => {
-  const [post, setPost] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [isLiked, setIsLiked] = useState(false);
-  const [showAuthModal, setShowAuthModal] = useState(false);
+  const handleShare = (platform) => {
+    const url = window.location.href;
+    const title = post?.title || '';
 
-
-  useEffect(() => {
-    loadPost();
-  }, [postId]);
-
-  const loadPost = async () => {
-    try {
-      const data = await api.getPost(postId);
-      setPost(data);
-      // Check if current user liked this post
-      if (user && data.likedUser) {
-        setIsLiked(data.likedUser.includes(user.userId));
-      }
-    } catch (error) {
-      console.error('Failed to load post:', error);
-    } finally {
-      setLoading(false);
+    switch (platform) {
+      case 'facebook':
+        window.open(
+          `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`,
+          '_blank'
+        );
+        break;
+      case 'twitter':
+        window.open(
+          `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`,
+          '_blank'
+        );
+        break;
+      case 'linkedin':
+        window.open(
+          `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`,
+          '_blank'
+        );
+        break;
+      case 'copy':
+        navigator.clipboard.writeText(url);
+        setCopySuccess(true);
+        setTimeout(() => setCopySuccess(false), 2000);
+        break;
+      default:
+        if (navigator.share) {
+          navigator.share({ title, url });
+        }
     }
+    setShowShareMenu(false);
   };
-
-  const handleComment = async (commentText) => {
-    try {
-      await api.addComment(postId, commentText);
-      loadPost();
-    } catch (error) {
-      console.error('Failed to comment:', error);
-      throw error;
-    }
-  };
-
-  const handleDeleteComment = async (commentId) => {
-    if (!confirm('Delete this comment?')) return;
-
-    try {
-      await api.deleteComment(commentId);
-      loadPost();
-    } catch (error) {
-      console.error('Failed to delete comment:', error);
-    }
-  };
-
-  const handleEditComment = async (commentId, newText) => {
-    try {
-      await api.editComment(commentId, newText);
-      loadPost();
-    } catch (error) {
-      console.error('Failed to edit comment:', error);
-    }
-  };
-
-  const handleLike = async () => {
- if (!user) {
-  setShowAuthModal(true);
-  return;
-}
-
-
-    try {
-      await api.likePost(postId);
-      setIsLiked(!isLiked);
-      loadPost();
-    } catch (error) {
-      console.error('Failed to like post:', error);
-    }
-  };
-
-  const handleShare = () => {
-    if (navigator.share) {
-      navigator.share({
-        title: post.title,
-        text: post.headline,
-        url: window.location.href,
-      });
-    } else {
-      navigator.clipboard.writeText(window.location.href);
-      alert('Link copied to clipboard!');
-    }
-  };
-
-if (loading) {
-  return (
-    <div className="fixed inset-0 bg-black/40 backdrop-blur-md flex items-center justify-center z-50">
-      <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-2xl p-10 flex flex-col items-center">
-        <LoadingSpinner text="Loading post..." />
-      </div>
-    </div>
-  );
-}
-
-
-  if (!post) return null;
-
-
-
 
   return (
-<div className="fixed inset-0 bg-black/40 backdrop-blur-md overflow-y-auto z-50">
-      <div className="min-h-screen px-4 py-8">
-        <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-2xl">
-          {/* Header */}
-          <div className="sticky top-0 bg-white border-b px-6 py-4 flex items-center justify-between rounded-t-2xl z-10">
-            <h2 className="text-xl font-bold text-gray-900">Article</h2>
-            <button
-              onClick={onClose}
-              className="text-gray-500 hover:text-gray-700 hover:bg-gray-100 p-2 rounded-lg transition"
-            >
-              <X className="w-6 h-6" />
-            </button>
-          </div>
-
-          {/* Content */}
-          <div className="p-6">
-            {/* Cover Image */}
-            <img
-              src={
-                post.frontImageUrl ||
-                'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=800'
-              }
-              alt={post.title}
-              className="w-full h-96 object-cover rounded-xl mb-6 shadow-lg"
-            />
-
-            {/* Meta Info */}
-            <div className="flex items-center justify-between mb-6 pb-6 border-b">
-              <div className="flex items-center">
-                <img
-                  src={
-                    post.author?.generalDetails?.photoUrl ||
-                    'https://via.placeholder.com/40'
-                  }
-                  alt="Author"
-                  className="w-12 h-12 rounded-full mr-3"
-                />
-                <div>
-                  <p className="font-semibold text-gray-900">
-                    {post.author?.generalDetails?.name || 'IDS Team'}
-                  </p>
-                  <p className="text-sm text-gray-500 flex items-center">
-                    <Calendar className="w-4 h-4 mr-1" />
-                    {new Date(post.createdAt).toLocaleDateString('en-US', {
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric',
-                    })}
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-center">
-                <button
-                  onClick={handleLike}
-                  className={`flex items-center px-4 py-2 rounded-lg transition mr-3 ${
-                    isLiked
-                      ? 'bg-red-100 text-red-600'
-                      : 'bg-gray-100 text-gray-600 hover:bg-red-50 hover:text-red-600'
-                  }`}
-                >
-                  <Heart className={`w-5 h-5 mr-2 ${isLiked ? 'fill-current' : ''}`} />
-                  <span className="font-semibold">{post.likes || 0}</span>
-                </button>
-                <button
-                  onClick={handleShare}
-                  className="flex items-center px-4 py-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition"
-                >
-                  <Share2 className="w-5 h-5 mr-2" />
-                  Share
-                </button>
-              </div>
-            </div>
-
-            {/* Title & Headline */}
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">
-              {post.title}
-            </h1>
-            <p className="text-xl text-gray-600 mb-8 leading-relaxed">
-              {post.headline}
-            </p>
-
-            {/* Content */}
-            <div
-              className="prose prose-lg max-w-none mb-12"
-              dangerouslySetInnerHTML={{ __html: post.content }}
-            />
-
-            {/* Comments Section */}
-            <div className="border-t pt-8">
-              <div className="flex items-center mb-6">
-                <MessageCircle className="w-6 h-6 text-red-600 mr-2" />
-                <h3 className="text-2xl font-bold text-gray-900">
-                  Comments ({post.comments?.length || 0})
-                </h3>
-              </div>
-
-              {user ? (
-                <div className="mb-8">
-                  <CommentForm onSubmit={handleComment} />
-                </div>
-              ) : (
-                <div className="mb-8 p-6 bg-gray-50 rounded-xl text-center border-2 border-dashed border-gray-200">
-                  <User className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-                  <p className="text-gray-600 font-medium">Please sign in to comment</p>
-                </div>
-              )}
-
-              <CommentList
-                comments={post.comments || []}
-                currentUserId={user?.userId}
-                onDelete={handleDeleteComment}
-                onEdit={handleEditComment}
-              />
-            </div>
+    <article className="bg-white rounded-2xl shadow-sm overflow-hidden">
+      {/* Cover Image */}
+      <div className="relative">
+        <img
+          src={
+            post.frontImageUrl ||
+            'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=1200'
+          }
+          alt={post.title}
+          className="w-full h-[420px] md:h-[480px] object-cover"
+        />
+        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-6">
+          <div className="flex items-center gap-2 text-white/90 text-sm mb-2">
+            <Calendar className="w-4 h-4" />
+            <span>
+              {new Date(post.createdAt).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+              })}
+            </span>
+            <span className="mx-2">•</span>
+            <Clock className="w-4 h-4" />
+            <span>5 min read</span>
           </div>
         </div>
       </div>
 
-        {showAuthModal && (
-  <AuthRequiredModal
-    onClose={() => setShowAuthModal(false)}
-    onSignIn={() => {
-      setShowAuthModal(false);
-      // Redirect user to your sign-in page or open a login modal
-      window.location.href = '/login';
-    }}
-  />
-)}
-    </div>
+      {/* Article Header */}
+      <div className="p-8">
+        <h1 className="text-4xl md:text-5xl font-bold text-gray-900 leading-tight mb-6">
+          {post.title}
+        </h1>
+
+        <p className="text-xl text-gray-600 leading-relaxed mb-8 border-l-4 border-red-600 pl-6">
+          {post.headline}
+        </p>
+
+        {/* Author Info */}
+        <div className="flex items-center justify-between pb-8 mb-8 border-b border-gray-200">
+          <div className="flex items-center gap-4">
+            <img
+              src={
+                post.author?.generalDetails?.photoUrl ||
+                'https://via.placeholder.com/48'
+              }
+              alt="Author"
+              className="w-14 h-14 rounded-full ring-2 ring-gray-200 object-cover"
+            />
+            <div>
+              <p className="font-semibold text-gray-900 text-lg">
+                {post.author?.generalDetails?.name || 'IDS Team'}
+              </p>
+              <p className="text-sm text-gray-500">Journalist & Editor</p>
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex items-center gap-2">
+            <button
+              onClick={onLike}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium transition-all ${
+                isLiked
+                  ? 'bg-red-50 text-red-600 ring-2 ring-red-200'
+                  : 'bg-gray-100 text-gray-600 hover:bg-red-50 hover:text-red-600'
+              }`}
+            >
+              <Heart className={`w-5 h-5 ${isLiked ? 'fill-current' : ''}`} />
+              <span>{post.likes || 0}</span>
+            </button>
+
+            <div className="relative">
+              <button
+                onClick={() => setShowShareMenu((s) => !s)}
+                className="p-2.5 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-all"
+                aria-expanded={showShareMenu}
+                aria-label="Share"
+              >
+                <Share2 className="w-5 h-5" />
+              </button>
+
+              {showShareMenu && (
+                <>
+                  <div
+                    className="fixed inset-0 z-10"
+                    onClick={() => setShowShareMenu(false)}
+                  />
+                  <div className="absolute right-0 mt-2 bg-white rounded-xl shadow-xl border border-gray-200 py-2 w-48 z-20">
+                    <button
+                      onClick={() => handleShare('facebook')}
+                      className="w-full px-4 py-2.5 text-left hover:bg-gray-50 flex items-center gap-3 text-gray-700"
+                    >
+                      <Facebook className="w-5 h-5 text-blue-600" />
+                      <span>Facebook</span>
+                    </button>
+                    <button
+                      onClick={() => handleShare('twitter')}
+                      className="w-full px-4 py-2.5 text-left hover:bg-gray-50 flex items-center gap-3 text-gray-700"
+                    >
+                      <Twitter className="w-5 h-5 text-sky-500" />
+                      <span>Twitter</span>
+                    </button>
+                    <button
+                      onClick={() => handleShare('linkedin')}
+                      className="w-full px-4 py-2.5 text-left hover:bg-gray-50 flex items-center gap-3 text-gray-700"
+                    >
+                      <Linkedin className="w-5 h-5 text-blue-700" />
+                      <span>LinkedIn</span>
+                    </button>
+                    <hr className="my-1" />
+                    <button
+                      onClick={() => handleShare('copy')}
+                      className="w-full px-4 py-2.5 text-left hover:bg-gray-50 flex items-center gap-3 text-gray-700"
+                    >
+                      <Link2 className="w-5 h-5 text-gray-500" />
+                      <span>{copySuccess ? 'Copied!' : 'Copy Link'}</span>
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Article Content */}
+        <div
+          className="prose prose-lg max-w-none prose-headings:font-bold prose-headings:text-gray-900 prose-p:text-gray-700 prose-p:leading-relaxed prose-a:text-red-600 prose-a:no-underline hover:prose-a:underline prose-strong:text-gray-900 prose-img:rounded-xl"
+          dangerouslySetInnerHTML={{ __html: post.content }}
+        />
+      </div>
+    </article>
   );
 };

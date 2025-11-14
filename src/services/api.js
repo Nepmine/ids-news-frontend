@@ -126,6 +126,13 @@ class APIService {
     });
   }
 
+  async likeComment(commentId) {
+    return this.request("/post/likeComment", {
+      method: "POST",
+      body: { commentId }, // ✅ FIXED: Pass object directly
+    });
+  }
+
   async getTrendingPosts() {
     return this.request("/post/trending");
   }
