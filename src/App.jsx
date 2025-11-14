@@ -13,6 +13,7 @@ import { GallerySection } from './pages/Gallary';
 import { PostPage } from './pages/PostPage';
 import { CategoryPage } from './pages/Category';
 import { Toaster } from 'react-hot-toast'; 
+import { YouTubePage } from './pages/Youtubepage';
 
 function AppContent() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -33,6 +34,7 @@ function AppContent() {
           <Route path="/sports" element={<CategoryPage />} />
           <Route path="/politics" element={<CategoryPage />} />
           <Route path="/business" element={<CategoryPage />} />
+          <Route path="/ids-youtube" element={<YouTubePage/>}/>
           <Route path="*" element={<Home />} />
           </Routes>
       </main>

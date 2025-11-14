@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { User } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import toast from 'react-hot-toast';
 
 export const GoogleSignIn = ({ onSuccess }) => {
   const { login } = useAuth();
@@ -62,7 +63,7 @@ export const GoogleSignIn = ({ onSuccess }) => {
       }
     } catch (error) {
       console.error('Error handling credential response:', error);
-      alert('Failed to sign in. Please try again.');
+      toast.error('Failed to sign in. Please try again.');
     }
   };
 

@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { GoogleSignIn } from '../components/auth/GoogleSignIn';
 import { api } from '../services/api';
+import toast from 'react-hot-toast';
 import { PostCard } from '../components/posts/PostCard';
 
 export const WeeklyArticle = () => {
@@ -107,15 +108,15 @@ export const WeeklyArticle = () => {
       } else {
         // Create new article
         await api.createPost(formData, 'article');
-        alert('Article created successfully!');
+        toast.success('Article created successfully!');
       }
       
       setShowEditor(false);
       setEditingArticle(null);
       loadArticles();
     } catch (error) {
-      console.error('Failed to save article:', error);
-      alert('Failed to save article: ' + error.message);
+      console.error('Failed to create article:', error);
+      toast.error('Failed to create article: ' );
       throw error;
     }
   };

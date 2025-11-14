@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Camera, X, Save, Loader, Tag, Eye, Edit3 } from 'lucide-react';
 import { uploadToCloudinary } from '../../services/cloudinary';
+import toast from 'react-hot-toast';
 
 export const PostEditor = ({ post, onClose, onSave, contentType = 'post' }) => {
 
@@ -122,7 +123,7 @@ export const PostEditor = ({ post, onClose, onSave, contentType = 'post' }) => {
             setTimeout(() => showImageSizeDialog(range.index), 100);
           } catch (error) {
             console.error('Image upload failed:', error);
-            alert('Failed to upload image: ' + error.message);
+            toast.error('Failed to upload image: ' );
             
             const range = quill.getSelection(true);
             const text = quill.getText();
