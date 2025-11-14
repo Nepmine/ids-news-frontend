@@ -1,3 +1,5 @@
+import toast from "react-hot-toast";
+
 export const formatDate = (dateString) => {
   const date = new Date(dateString);
   return date.toLocaleDateString('en-US', {
@@ -86,6 +88,6 @@ export const shareUrl = (url, title) => {
   } else {
     // Fallback: copy to clipboard
     navigator.clipboard.writeText(url);
-    alert('Link copied to clipboard!');
+    toast('Link copied to clipboard!');
   }
 };

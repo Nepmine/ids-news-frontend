@@ -8,6 +8,7 @@ import { GoogleSignIn } from '../components/auth/GoogleSignIn';
 
 
 import { api } from '../services/api';
+import toast from 'react-hot-toast';
 
 export const WeeklyArticle = () => {
   const { user, isAuthor } = useAuth();
@@ -89,12 +90,12 @@ const handleLike = async (postId) => {
   const handleSaveArticle = async (formData) => {
     try {
       await api.createPost(formData, 'article');
-      alert('Article created successfully!');
+      toast.success('Article created successfully!');
       setShowEditor(false);
       loadArticles();
     } catch (error) {
       console.error('Failed to create article:', error);
-      alert('Failed to create article: ' + error.message);
+      toast.error('Failed to create article: ' );
       throw error;
     }
   };

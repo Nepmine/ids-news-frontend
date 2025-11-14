@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, LogOut, User, X, Newspaper, TrendingUp, Trophy, Landmark, Briefcase, Calendar, Image, Info, Clock } from 'lucide-react';
+import { Menu, LogOut, User, X, Newspaper, TrendingUp, Trophy, Landmark, Briefcase, Calendar, Image, Info, Clock, Youtube } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { GoogleSignIn } from '../auth/GoogleSignIn';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -71,9 +71,11 @@ export const Header = ({ onMenuClick }) => {
     { path: '/sports', label: 'Sports', icon: Trophy, description: 'Sports news & scores' },
     { path: '/politics', label: 'Politics', icon: Landmark, description: 'Political coverage' },
     { path: '/business', label: 'Business', icon: Briefcase, description: 'Business & economy' },
+  {path:'/ids-youtube',label:'Youtube Videos',icon:Youtube,description:'Latest IDS Videos'}
   ];
 
   return (
+
     <>
       <header className="bg-gradient-to-r from-red-600 to-red-700 text-white shadow-lg sticky top-0 z-50 transition-all duration-300">
         {/* Main Header Bar */}
