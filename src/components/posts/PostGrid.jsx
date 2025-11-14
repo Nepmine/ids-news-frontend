@@ -1,4 +1,3 @@
-import React from 'react';
 import { PostCard } from './PostCard';
 import { LoadingSpinner } from '../common/LoadingSpinner';
 import { BookOpen } from 'lucide-react';

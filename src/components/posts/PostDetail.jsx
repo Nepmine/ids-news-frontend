@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Heart, Calendar, Share2, User, Clock, MessageCircle } from 'lucide-react';
+import { X, Heart, Calendar, Share2, User, MessageCircle } from 'lucide-react';
 import { api } from '../../services/api';
 import { LoadingSpinner } from '../common/LoadingSpinner';
 import { CommentList } from '../comments/CommentList';

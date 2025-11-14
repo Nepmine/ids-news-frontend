@@ -274,16 +274,6 @@ const handleLike = () => {
                       <span>{post.likes || 0}</span>
                     </button>
 
-                    <button
-                      onClick={handleSave}
-                      className={`p-2.5 rounded-lg transition-all ${
-                        isSaved
-                          ? 'bg-blue-50 text-blue-600 ring-2 ring-blue-200'
-                          : 'bg-gray-100 text-gray-600 hover:bg-blue-50 hover:text-blue-600'
-                      }`}
-                    >
-                      <Bookmark className={`w-5 h-5 ${isSaved ? 'fill-current' : ''}`} />
-                    </button>
 
                     <div className="relative">
                       <button
