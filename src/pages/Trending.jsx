@@ -5,6 +5,7 @@ import { api } from "../services/api";
 import { useNavigate } from "react-router-dom";
 
 import { PostDetail } from "../components/posts/PostDetail";
+import toast from "react-hot-toast";
 
 export const Trending = () => {
   const { user, isAuthor } = useAuth();
@@ -58,7 +59,7 @@ export const Trending = () => {
       setShowAddModal(false);
     } catch (error) {
       console.error("Failed to add to trending:", error);
-      alert("Failed to add to trending: " + error.message);
+      toast.error("Failed to add to trending: " );
     } finally {
       setActionLoading(null);
     }
@@ -74,7 +75,7 @@ export const Trending = () => {
       await loadAllPosts();
     } catch (error) {
       console.error("Failed to remove from trending:", error);
-      alert("Failed to remove from trending: " + error.message);
+      toast.error("Failed to remove from trending: " );
     } finally {
       setActionLoading(null);
     }

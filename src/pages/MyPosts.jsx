@@ -4,12 +4,17 @@ import { api } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { LoadingSpinner } from '../components/common/LoadingSpinner';
 import { formatDate } from '../utils/helpers';
+import toast from 'react-hot-toast';
+import { ConfirmDialog } from '../components/common/ConfirmDialog';
 
 export const MyPosts = () => {
   const { user, isAuthor } = useAuth();
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+const [postToDelete, setPostToDelete] = useState(null);
+
 
   useEffect(() => {
     loadMyPosts();
@@ -28,16 +33,29 @@ export const MyPosts = () => {
     }
   };
 
-  const handleDelete = async (postId) => {
-    if (!confirm('Are you sure you want to delete this post?')) return;
 
-    try {
-      await api.deletePost(postId);
-      setPosts(posts.filter((p) => p.postId !== postId));
-    } catch (err) {
-      alert('Failed to delete post: ' + err.message);
-    }
-  };
+const handleDelete = (postId) => {
+  setPostToDelete(postId);
+  setConfirmOpen(true);
+};
+
+const handleConfirmDelete = async () => {
+  setConfirmOpen(false);
+
+  try {
+    await api.deletePost(postToDelete);
+    setPosts(posts.filter((p) => p.postId !== postToDelete));
+  } catch (err) {
+    toast.error("Failed to delete post");
+  } finally {
+    setPostToDelete(null);
+  }
+};
+
+const handleCancelDelete = () => {
+  setConfirmOpen(false);
+  setPostToDelete(null);
+};
 
   if (!isAuthor) {
     return (
@@ -168,6 +186,15 @@ export const MyPosts = () => {
           </table>
         </div>
       )}
+      <ConfirmDialog
+  isOpen={confirmOpen}
+  title="Delete This Post?"
+  message="Are you sure you want to delete this post? This action cannot be undone."
+  onConfirm={handleConfirmDelete}
+  onCancel={handleCancelDelete}
+/>
+
     </div>
+    
   );
 };

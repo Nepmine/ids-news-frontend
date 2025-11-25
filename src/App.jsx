@@ -50,7 +50,12 @@ export default function App() {
       <AuthProvider>
         <Router>
           <AppContent />
-          <Toaster position="top-center" /> 
+          <Toaster position="top-center"
+           toastOptions={{
+    style: {
+      zIndex: 999999,   
+    },
+  }}/>
         </Router>
       </AuthProvider>
     </ErrorBoundary>
