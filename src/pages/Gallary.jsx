@@ -315,6 +315,8 @@ const GalleryCard = ({ gallery, onLike, isLiked, onImageClick, isAuthor, onDelet
   const [imageLoading, setImageLoading] = useState(true);
   const [showMenu, setShowMenu] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
+    const [confirmOpen, setConfirmOpen] = useState(false);
+const [confirmGalleryOpen, setConfirmGalleryOpen] = useState(false);
   
   const [isLiking, setIsLiking] = useState(false);
   const [showHearts, setShowHearts] = useState(false);
@@ -357,21 +359,30 @@ const GalleryCard = ({ gallery, onLike, isLiked, onImageClick, isAuthor, onDelet
     setImageLoading(true);
   };
 
-  const handleDeleteGallery = async (e) => {
-    e.stopPropagation();
-    if (!confirm('Delete this gallery? This will delete all images and cannot be undone.')) return;
-    
-    setDeleteLoading(true);
-    try {
-      await onDeleteGallery(gallery.galleryId);
-    } catch (error) {
-      console.error('Failed to delete gallery:', error);
-      toast.error('Failed to delete gallery');
-    } finally {
-      setDeleteLoading(false);
-      setShowMenu(false);
-    }
-  };
+   const handleConfirmDeleteGallery = async () => {
+  setDeleteLoading(true);
+  try {
+    await onDeleteGallery(gallery.galleryId);
+    setConfirmGalleryOpen(false); 
+  } catch (error) {
+    console.error("Failed to delete gallery:", error);
+    toast.error("Failed to delete gallery");
+  } finally {
+    setDeleteLoading(false);
+    setShowMenu(false);
+  }
+};
+
+const handleDeleteGallery = () => {
+  setConfirmGalleryOpen(true);
+};
+
+const handleCancelDeleteGallery = () => {
+  setConfirmGalleryOpen(false);
+};
+
+
+
 
   return (
     <div
@@ -508,7 +519,19 @@ const GalleryCard = ({ gallery, onLike, isLiked, onImageClick, isAuthor, onDelet
           </div>
         )}
       </div>
+          {confirmGalleryOpen && (
+  <ConfirmDialog
+    isOpen={confirmGalleryOpen}
+    title="Delete Entire Gallery?"
+    message="This will permanently delete the entire gallery including all images. This action cannot be undone."
+    onConfirm={handleConfirmDeleteGallery}
+    onCancel={handleCancelDeleteGallery}
+  />
+)}
+
     </div>
+
+    
   );
 };
 
@@ -798,6 +821,7 @@ export const GallerySection = () => {
       toast.error('Failed to save gallery: ' );
     }
   };
+  
 
   if (loading) {
     return (
@@ -812,6 +836,7 @@ export const GallerySection = () => {
       </div>
     );
   }
+  
 
   return (
     <div className="min-h-screen bg-gray-50">
