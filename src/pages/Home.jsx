@@ -6,6 +6,7 @@ import { api } from '../services/api';
 import { useNavigate } from 'react-router-dom';
 import { GoogleSignIn } from '../components/auth/GoogleSignIn';
 import { PostCard } from '../components/posts/PostCard';
+import toast from 'react-hot-toast';
 
 // Design System Constants
 const TRANSITIONS = {
@@ -118,11 +119,11 @@ export const Home = () => {
           postId: editingPost.postId,
           ...formData
         });
-        alert('Post updated successfully!');
+        toast.success('Post updated successfully!');
       } else {
         // Create new post
         await api.createPost(formData, 'post');
-        alert('Post created successfully!');
+        toast.success('Post created successfully!');
       }
       
       setShowEditor(false);
@@ -130,7 +131,7 @@ export const Home = () => {
       loadPosts();
     } catch (error) {
       console.error('Failed to save post:', error);
-      alert('Failed to save post: ' + error.message);
+      toast.error('Failed to save post');
       throw error;
     }
   };
@@ -138,11 +139,11 @@ export const Home = () => {
   const handleDeletePost = async (postId) => {
     try {
       await api.deletePost(postId);
-      alert('Post deleted successfully!');
+      toast.error('Post deleted successfully!');
       loadPosts();
     } catch (error) {
-      console.error('Failed to delete post:', error);
-      alert('Failed to delete post: ' + error.message);
+      console.error('Failed to delete post', error);
+      toast.error('Failed to delete post');
     }
   };
 

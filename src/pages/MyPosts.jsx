@@ -48,6 +48,7 @@ const handleConfirmDelete = async () => {
   } catch (err) {
     toast.error("Failed to delete post");
   } finally {
+    setConfirmOpen(false);
     setPostToDelete(null);
   }
 };

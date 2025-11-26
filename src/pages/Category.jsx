@@ -5,6 +5,7 @@ import { api } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { PostEditor } from '../components/posts/PostEditor';
 import { PostCard } from '../components/posts/PostCard';
+import toast from 'react-hot-toast';
 
 
 export const CategoryPage = () => {
@@ -98,7 +99,7 @@ export const CategoryPage = () => {
   const handleLike = async (postId, e) => {
     e.stopPropagation();
     if (!user) {
-      alert('Please sign in to like posts');
+      toast('Please sign in to like posts');
       return;
     }
 
@@ -135,14 +136,14 @@ export const CategoryPage = () => {
           postId: editingPost.postId,
           ...formData
         });
-        alert('Post updated successfully!');
+        toast.success('Post updated successfully!');
       } else {
         // Create new post
         if (!formData.category.includes(category)) {
           formData.category.push(category);
         }
         await api.createPost(formData, 'post');
-        alert('Post created successfully!');
+        toast.success('Post created successfully!');
       }
       
       setShowEditor(false);
@@ -150,7 +151,7 @@ export const CategoryPage = () => {
       loadCategoryPosts();
     } catch (error) {
       console.error('Failed to save post:', error);
-      alert('Failed to save post: ' + error.message);
+      toast.error('Failed to save post');
       throw error;
     }
   };
@@ -158,11 +159,11 @@ export const CategoryPage = () => {
   const handleDeletePost = async (postId) => {
     try {
       await api.deletePost(postId);
-      alert('Post deleted successfully!');
+      toast.success('Post deleted successfully!');
       loadCategoryPosts();
     } catch (error) {
       console.error('Failed to delete post:', error);
-      alert('Failed to delete post: ' + error.message);
+      toast('Failed to delete post: ' );
     }
   };
 
