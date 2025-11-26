@@ -19,3 +19,7 @@
       'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   }
 }
+/* Always keep toast above your modals */
+#toast-root, .react-hot-toast {
+  z-index: 999999 !important;
+}

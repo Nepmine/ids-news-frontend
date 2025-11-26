@@ -104,7 +104,7 @@ export const WeeklyArticle = () => {
           postId: editingArticle.postId,
           ...formData
         });
-        alert('Article updated successfully!');
+        toast.success('Article updated successfully!');
       } else {
         // Create new article
         await api.createPost(formData, 'article');
@@ -124,11 +124,11 @@ export const WeeklyArticle = () => {
   const handleDeleteArticle = async (postId) => {
     try {
       await api.deletePost(postId);
-      alert('Article deleted successfully!');
+      toast.success('Article deleted successfully!');
       loadArticles();
     } catch (error) {
       console.error('Failed to delete article:', error);
-      alert('Failed to delete article: ' + error.message);
+      toast.error('Failed to delete article: ' + error.message);
     }
   };
 

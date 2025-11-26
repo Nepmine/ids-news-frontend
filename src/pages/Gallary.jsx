@@ -8,6 +8,7 @@ import { GoogleSignIn } from '../components/auth/GoogleSignIn';
 
 
 import { api } from '../services/api';
+import { ConfirmDialog } from '../components/common/ConfirmDialog';
 
 const ImageLoadingSpinner = () => (
   <div className="absolute inset-0 flex items-center justify-center bg-gray-900">
@@ -22,6 +23,9 @@ const ImageViewModal = ({ images, initialIndex, onClose, likes, galleryId, onLik
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const [imageLoading, setImageLoading] = useState(true);
   const [showMenu, setShowMenu] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+const [confirmGalleryOpen, setConfirmGalleryOpen] = useState(false);
+
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [isLiking, setIsLiking] = useState(false);
   const [showHearts, setShowHearts] = useState(false);
@@ -69,45 +73,62 @@ const ImageViewModal = ({ images, initialIndex, onClose, likes, galleryId, onLik
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  const handleDeleteImage = async () => {
-    if (!confirm('Delete this image? This action cannot be undone.')) return;
-    
-    setDeleteLoading(true);
-    try {
-      await onDeleteImage(galleryId, images[currentIndex]);
-      // If it was the last image, close modal
-      if (images.length === 1) {
-        onClose();
-      } else {
-        // Move to next image or previous if at end
-        if (currentIndex >= images.length - 1) {
-          setCurrentIndex(0);
-        }
-      }
-    } catch (error) {
-      console.error('Failed to delete image:', error);
-      toast.error("Failed to delete image");
-    } finally {
-      setDeleteLoading(false);
-      setShowMenu(false);
-    }
-  };
+ const handleDeleteImage = () => {
+  setConfirmOpen(true); // open dialog
+};
 
-  const handleDeleteGallery = async () => {
-    if (!confirm('Delete entire gallery? This will delete all images and cannot be undone.')) return;
-    
-    setDeleteLoading(true);
-    try {
-      await onDeleteGallery(galleryId);
+const handleConfirmDelete = async () => {
+  setConfirmOpen(false);
+  setDeleteLoading(true);
+
+  try {
+    await onDeleteImage(galleryId, images[currentIndex]);
+
+    if (images.length === 1) {
       onClose();
-    } catch (error) {
-      console.error('Failed to delete gallery:', error);
-      toast.error('Failed to delete gallery');
-    } finally {
-      setDeleteLoading(false);
-      setShowMenu(false);
+    } else {
+      if (currentIndex >= images.length - 1) {
+        setCurrentIndex(0);
+      }
     }
-  };
+  } catch (error) {
+    console.error("Failed to delete image:", error);
+    toast.error("Failed to delete image");
+  } finally {
+    setDeleteLoading(false);
+    setShowMenu(false);
+  }
+};
+
+const handleCancelDelete = () => {
+  setConfirmOpen(false);
+};
+
+const handleDeleteGallery = () => {
+  setConfirmGalleryOpen(true); 
+};
+const handleConfirmDeleteGallery = async () => {
+  setConfirmGalleryOpen(false);
+  setDeleteLoading(true);
+
+  try {
+    await onDeleteGallery(galleryId);
+    onClose(); // close modal or gallery view
+  } catch (error) {
+    console.error("Failed to delete gallery:", error);
+    toast.error("Failed to delete gallery");
+  } finally {
+    setDeleteLoading(false);
+    setShowMenu(false);
+  }
+};
+
+const handleCancelDeleteGallery = () => {
+  setConfirmGalleryOpen(false);
+};
+
+
+
 
   return (
     <div className="fixed inset-0 bg-black/95 z-50 flex items-center justify-center animate-fadeIn">
@@ -265,6 +286,25 @@ const ImageViewModal = ({ images, initialIndex, onClose, likes, galleryId, onLik
             ))}
           </div>
         )}
+        {confirmGalleryOpen && (
+  <ConfirmDialog
+    isOpen={confirmGalleryOpen}
+    title="Delete Entire Gallery?"
+    message="This will permanently delete the entire gallery including all images. This action cannot be undone."
+    onConfirm={handleConfirmDeleteGallery}
+    onCancel={handleCancelDeleteGallery}
+  />
+)}
+
+          {confirmOpen && (
+  <ConfirmDialog
+    isOpen={confirmOpen}
+    title="Delete Image?"
+    message="Are you sure you want to delete this image? This action cannot be undone."
+    onConfirm={handleConfirmDelete}
+    onCancel={handleCancelDelete}
+  />
+)}
       </div>
     </div>
   );
@@ -275,6 +315,8 @@ const GalleryCard = ({ gallery, onLike, isLiked, onImageClick, isAuthor, onDelet
   const [imageLoading, setImageLoading] = useState(true);
   const [showMenu, setShowMenu] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
+    const [confirmOpen, setConfirmOpen] = useState(false);
+const [confirmGalleryOpen, setConfirmGalleryOpen] = useState(false);
   
   const [isLiking, setIsLiking] = useState(false);
   const [showHearts, setShowHearts] = useState(false);
@@ -317,21 +359,30 @@ const GalleryCard = ({ gallery, onLike, isLiked, onImageClick, isAuthor, onDelet
     setImageLoading(true);
   };
 
-  const handleDeleteGallery = async (e) => {
-    e.stopPropagation();
-    if (!confirm('Delete this gallery? This will delete all images and cannot be undone.')) return;
-    
-    setDeleteLoading(true);
-    try {
-      await onDeleteGallery(gallery.galleryId);
-    } catch (error) {
-      console.error('Failed to delete gallery:', error);
-      toast.error('Failed to delete gallery');
-    } finally {
-      setDeleteLoading(false);
-      setShowMenu(false);
-    }
-  };
+   const handleConfirmDeleteGallery = async () => {
+  setDeleteLoading(true);
+  try {
+    await onDeleteGallery(gallery.galleryId);
+    setConfirmGalleryOpen(false); 
+  } catch (error) {
+    console.error("Failed to delete gallery:", error);
+    toast.error("Failed to delete gallery");
+  } finally {
+    setDeleteLoading(false);
+    setShowMenu(false);
+  }
+};
+
+const handleDeleteGallery = () => {
+  setConfirmGalleryOpen(true);
+};
+
+const handleCancelDeleteGallery = () => {
+  setConfirmGalleryOpen(false);
+};
+
+
+
 
   return (
     <div
@@ -468,7 +519,19 @@ const GalleryCard = ({ gallery, onLike, isLiked, onImageClick, isAuthor, onDelet
           </div>
         )}
       </div>
+          {confirmGalleryOpen && (
+  <ConfirmDialog
+    isOpen={confirmGalleryOpen}
+    title="Delete Entire Gallery?"
+    message="This will permanently delete the entire gallery including all images. This action cannot be undone."
+    onConfirm={handleConfirmDeleteGallery}
+    onCancel={handleCancelDeleteGallery}
+  />
+)}
+
     </div>
+
+    
   );
 };
 
@@ -758,6 +821,7 @@ export const GallerySection = () => {
       toast.error('Failed to save gallery: ' );
     }
   };
+  
 
   if (loading) {
     return (
@@ -772,6 +836,7 @@ export const GallerySection = () => {
       </div>
     );
   }
+  
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -899,8 +964,17 @@ export const GallerySection = () => {
           onDeleteGallery={handleDeleteGallery}
         />
       )}
+
+    
+
+
+ 
+
     </div>
+    
   );
+   
+
 };
 
 // Add these animations to your global CSS or Tailwind config
