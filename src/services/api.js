@@ -67,8 +67,8 @@ class APIService {
     return this.request(`/post/getRecentNews/${recentCount}`);
   }
 
-  async getCategory(category) {
-    return this.request(`/post/getCategory/${category}`);
+  async getCategory(category, page=1) {
+    return this.request(`/post/getCategory/${category}?page=${page}`);
   }
 
   async getPost(postId) {

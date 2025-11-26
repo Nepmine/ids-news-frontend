@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Trophy, Landmark, Briefcase, TrendingUp, ArrowLeft, Plus } from 'lucide-react';
+import { Trophy, Landmark, Briefcase, TrendingUp, ArrowLeft, Plus, ChevronLeft, ChevronRight } from 'lucide-react';
 import { api } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { PostEditor } from '../components/posts/PostEditor';
@@ -20,6 +20,8 @@ export const CategoryPage = () => {
   const [likedPosts, setLikedPosts] = useState([]);
   const [showEditor, setShowEditor] = useState(false);
   const [editingPost, setEditingPost] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [hasMorePosts, setHasMorePosts] = useState(true);
 
   // Category configurations
   const categoryConfig = {
@@ -64,18 +66,26 @@ export const CategoryPage = () => {
   const Icon = config.icon;
 
   useEffect(() => {
+    setCurrentPage(1); // Reset page when category changes
+  }, [category]);
+
+  useEffect(() => {
     loadCategoryPosts();
     if (user) {
       loadLikedPosts();
     }
-  }, [category, user]);
+  }, [category, user, currentPage]);
 
   const loadCategoryPosts = async () => {
     try {
       setLoading(true);
       setError(null);
-      const data = await api.getCategory(category);
+      const data = await api.getCategory(category, currentPage);
       setPosts(data);
+      
+      // Check if we got fewer posts than the limit (15)
+      // If yes, we've reached the end
+      setHasMorePosts(data.length >= 15);
     } catch (err) {
       setError(err.message);
       console.error('Failed to load category posts:', err);
@@ -147,6 +157,7 @@ export const CategoryPage = () => {
       
       setShowEditor(false);
       setEditingPost(null);
+      setCurrentPage(1); // Reset to first page
       loadCategoryPosts();
     } catch (error) {
       console.error('Failed to save post:', error);
@@ -169,6 +180,20 @@ export const CategoryPage = () => {
   const handleCloseEditor = () => {
     setShowEditor(false);
     setEditingPost(null);
+  };
+
+  const handlePreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(prev => prev - 1);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  const handleNextPage = () => {
+    if (hasMorePosts) {
+      setCurrentPage(prev => prev + 1);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   };
 
   if (loading) {
@@ -232,10 +257,10 @@ export const CategoryPage = () => {
             <div className="hidden md:flex items-center gap-6">
               <div className="text-right">
                 <div className="text-2xl font-bold text-red-600">
-                  {posts.length}
+                  Page {currentPage}
                 </div>
                 <div className="text-sm text-gray-500">
-                  {posts.length === 1 ? 'Story' : 'Stories'}
+                  {posts.length} {posts.length === 1 ? 'Story' : 'Stories'}
                 </div>
               </div>
               
@@ -289,7 +314,7 @@ export const CategoryPage = () => {
 
             {/* Regular Posts Grid */}
             {posts.length > 1 && (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
                 {posts.slice(1).map((post, index) => (
                   <PostCard
                     key={post.postId}
@@ -306,6 +331,45 @@ export const CategoryPage = () => {
                 ))}
               </div>
             )}
+
+            {/* Pagination Controls */}
+            <div className="flex items-center justify-center gap-4">
+              <button
+                onClick={handlePreviousPage}
+                disabled={currentPage === 1}
+                className={`
+                  flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-all
+                  ${currentPage === 1
+                    ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                    : 'bg-white text-red-600 border-2 border-red-600 hover:bg-red-50 shadow-md hover:shadow-lg'
+                  }
+                `}
+              >
+                <ChevronLeft className="w-5 h-5" />
+                Previous
+              </button>
+              
+              <div className="flex items-center gap-2">
+                <span className="px-4 py-3 bg-red-600 text-white rounded-lg font-bold shadow-md">
+                  Page {currentPage}
+                </span>
+              </div>
+              
+              <button
+                onClick={handleNextPage}
+                disabled={!hasMorePosts}
+                className={`
+                  flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-all
+                  ${!hasMorePosts
+                    ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                    : 'bg-white text-red-600 border-2 border-red-600 hover:bg-red-50 shadow-md hover:shadow-lg'
+                  }
+                `}
+              >
+                Next
+                <ChevronRight className="w-5 h-5" />
+              </button>
+            </div>
           </>
         ) : (
           /* Empty State */

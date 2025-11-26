@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { TrendingUp, Plus, X, Newspaper } from 'lucide-react';
+import { TrendingUp, Plus, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { PostEditor } from '../components/posts/PostEditor';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
@@ -29,6 +29,8 @@ export const Home = () => {
   const [likedPosts, setLikedPosts] = useState([]);
   const [showEditor, setShowEditor] = useState(false);
   const [editingPost, setEditingPost] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [hasMorePosts, setHasMorePosts] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -36,14 +38,19 @@ export const Home = () => {
     if (user) {
       loadLikedPosts();
     }
-  }, [user]);
+  }, [user, currentPage]);
 
   const loadPosts = async () => {
     try {
       setLoading(true);
-      const data = await api.getHomePosts();
+      // Use the same getCategory API with 'home' category
+      const data = await api.getCategory('home', currentPage);
       console.log("Post data is ::: ", data);
       setPosts(data);
+      
+      // Check if we got fewer posts than the limit (15)
+      // If yes, we've reached the end
+      setHasMorePosts(data.length >= 15);
       setError(null);
     } catch (err) {
       setError(err.message);
@@ -113,20 +120,19 @@ export const Home = () => {
   const handleSavePost = async (formData) => {
     try {
       if (editingPost) {
-        // Update existing post
         await api.updatePost({
           postId: editingPost.postId,
           ...formData
         });
         alert('Post updated successfully!');
       } else {
-        // Create new post
         await api.createPost(formData, 'post');
         alert('Post created successfully!');
       }
       
       setShowEditor(false);
       setEditingPost(null);
+      setCurrentPage(1); // Reset to first page
       loadPosts();
     } catch (error) {
       console.error('Failed to save post:', error);
@@ -149,6 +155,20 @@ export const Home = () => {
   const handleCloseEditor = () => {
     setShowEditor(false);
     setEditingPost(null);
+  };
+
+  const handlePreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(prev => prev - 1);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  const handleNextPage = () => {
+    if (hasMorePosts) {
+      setCurrentPage(prev => prev + 1);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   };
 
   if (loading) {
@@ -264,6 +284,49 @@ export const Home = () => {
                 />
               ))}
             </div>
+          </div>
+        )}
+
+        {/* Pagination Controls */}
+        {posts.length > 0 && (
+          <div className="mt-12 flex items-center justify-center gap-4">
+            <button
+              onClick={handlePreviousPage}
+              disabled={currentPage === 1}
+              className={`
+                flex items-center gap-2 px-6 py-3 rounded-lg font-semibold
+                ${currentPage === 1
+                  ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                  : 'bg-white text-red-600 border-2 border-red-600 hover:bg-red-50 shadow-md hover:shadow-lg'
+                }
+                ${TRANSITIONS.normal}
+              `}
+            >
+              <ChevronLeft className="w-5 h-5" />
+              Previous
+            </button>
+            
+            <div className="flex items-center gap-2">
+              <span className="px-4 py-3 bg-red-600 text-white rounded-lg font-bold shadow-md">
+                Page {currentPage}
+              </span>
+            </div>
+            
+            <button
+              onClick={handleNextPage}
+              disabled={!hasMorePosts}
+              className={`
+                flex items-center gap-2 px-6 py-3 rounded-lg font-semibold
+                ${!hasMorePosts
+                  ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                  : 'bg-white text-red-600 border-2 border-red-600 hover:bg-red-50 shadow-md hover:shadow-lg'
+                }
+                ${TRANSITIONS.normal}
+              `}
+            >
+              Next
+              <ChevronRight className="w-5 h-5" />
+            </button>
           </div>
         )}
 
