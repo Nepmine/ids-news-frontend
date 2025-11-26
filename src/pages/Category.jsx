@@ -72,18 +72,19 @@ export const CategoryPage = () => {
   }, [category, user]);
 
   const loadCategoryPosts = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const data = await api.getCategory(category);
-      setPosts(data);
-    } catch (err) {
-      setError(err.message);
-      console.error('Failed to load category posts:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  try {
+    setLoading(true);
+    setError(null);
+    const data = await api.getCategory(category);
+    setPosts(Array.isArray(data) ? data : []); // Ensure posts is always an array
+  } catch (err) {
+    console.error('Failed to load category posts:', err);
+    setError(err.message);
+    setPosts([]); // Set empty array on error
+  } finally {
+    setLoading(false);
+  }
+};
 
   const loadLikedPosts = async () => {
     try {
@@ -116,16 +117,6 @@ export const CategoryPage = () => {
     } catch (error) {
       console.error('Failed to like post:', error);
     }
-  };
-
-  useEffect(() => {
-    if (user) {
-      setShowSignInModal(false);
-    }
-  }, [user]);
-  
-  const handleSignInSuccess = () => {
-    setShowSignInModal(false);
   };
 
   const handleCreatePost = () => {

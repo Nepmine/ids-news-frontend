@@ -165,10 +165,6 @@ export const About = () => {
 
         <div className="max-w-7xl mx-auto px-4 py-20 md:py-28 relative z-10">
           <div className="text-center">
-            <div className={`inline-flex items-center gap-3 bg-white/10 backdrop-blur-sm px-6 py-3 rounded-full mb-6 ${TRANSITIONS.normal} ${HOVER_EFFECTS.scale}`}>
-              <Newspaper className="w-5 h-5" />
-              <span className="font-semibold">Est. August 2016</span>
-            </div>
             <h1 className={`text-5xl md:text-6xl font-bold mb-6 ${TRANSITIONS.slow} hover:scale-105 inline-block cursor-default`}>
               IN-Depth Story Nepal
             </h1>

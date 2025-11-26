@@ -31,9 +31,7 @@ function AppContent() {
           <Route path="/my-posts" element={<MyPosts />} />
           <Route path="/gallery" element={<GallerySection />} />
           <Route path="/post/:postId" element={<PostPage />} />
-          <Route path="/sports" element={<CategoryPage />} />
-          <Route path="/politics" element={<CategoryPage />} />
-          <Route path="/business" element={<CategoryPage />} />
+          <Route path="/:category" element={<CategoryPage />} />
           <Route path="/ids-youtube" element={<YouTubePage/>}/>
           <Route path="*" element={<Home />} />
           </Routes>
