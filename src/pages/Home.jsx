@@ -105,6 +105,17 @@ export const Home = () => {
     setShowEditor(true);
   };
 
+  useEffect(() => {
+    if (user) {
+      setShowSignInModal(false);
+    }
+  }, [user]);
+
+  
+  const handleSignInSuccess = () => {
+    setShowSignInModal(false);
+  };
+
   const handleEditPost = (post) => {
     setEditingPost(post);
     setShowEditor(true);
@@ -304,7 +315,9 @@ export const Home = () => {
       )}
 
       {/* Sign In Modal */}
-      {showSignInModal && (
+      
+      {/* Sign In Modal */}
+      {showSignInModal && !user && (
         <div
           className="fixed inset-0 flex items-center justify-center z-50 p-4 bg-black/30 backdrop-blur-sm transition-all duration-300 animate-fadeIn"
           onClick={() => setShowSignInModal(false)}
@@ -330,11 +343,11 @@ export const Home = () => {
               <p className="text-gray-600">Sign in to access all features</p>
             </div>
 
-            <GoogleSignIn onSuccess={() => setShowSignInModal(false)} />
+            <GoogleSignIn onSuccess={handleSignInSuccess} />
           </div>
         </div>
       )}
-      
+
       <style jsx>{`
         @keyframes fadeInUp {
           from {

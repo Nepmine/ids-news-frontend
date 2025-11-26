@@ -117,6 +117,16 @@ export const CategoryPage = () => {
     }
   };
 
+  useEffect(() => {
+    if (user) {
+      setShowSignInModal(false);
+    }
+  }, [user]);
+  
+  const handleSignInSuccess = () => {
+    setShowSignInModal(false);
+  };
+
   const handleCreatePost = () => {
     setEditingPost(null);
     setShowEditor(true);
