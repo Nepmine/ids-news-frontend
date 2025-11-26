@@ -21,6 +21,13 @@ export const Header = ({ onMenuClick }) => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
+  // Close sign-in modal immediately when user is authenticated
+  useEffect(() => {
+    if (user) {
+      setShowSignInModal(false);
+    }
+  }, [user]);
+
   // Load recent news when header expands
   useEffect(() => {
     if (isHeaderExpanded && recentNews.length === 0) {
@@ -55,6 +62,10 @@ export const Header = ({ onMenuClick }) => {
       const diffInDays = Math.floor(diffInHours / 24);
       return `${diffInDays} day${diffInDays !== 1 ? 's' : ''} ago`;
     }
+  };
+
+  const handleSignInSuccess = () => {
+    setShowSignInModal(false);
   };
 
   // Main nav items (always visible)
@@ -361,8 +372,8 @@ export const Header = ({ onMenuClick }) => {
         </div>
       </header>
 
-      {/* Sign In Modal */}
-      {showSignInModal && (
+      {/* Sign In Modal - Only render when modal should be shown AND user is not logged in */}
+      {showSignInModal && !user && (
         <div
           className="fixed inset-0 flex items-center justify-center z-50 p-4 bg-black/30 backdrop-blur-sm transition-all duration-300 animate-fadeIn"
           onClick={() => setShowSignInModal(false)}
@@ -388,7 +399,7 @@ export const Header = ({ onMenuClick }) => {
               <p className="text-gray-600">Sign in to access all features</p>
             </div>
 
-            <GoogleSignIn onSuccess={() => setShowSignInModal(false)} />
+            <GoogleSignIn onSuccess={handleSignInSuccess} />
           </div>
         </div>
       )}
