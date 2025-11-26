@@ -60,18 +60,18 @@ export const Footer = () => {
                 </a>
               </li>
               <li>
-                <a href="/contact" className="hover:text-white transition">
-                  Contact
+                <a href="/trending" className="hover:text-white transition">
+                  Trending
                 </a>
               </li>
               <li>
-                <a href="/privacy" className="hover:text-white transition">
-                  Privacy Policy
+                <a href="/gallery" className="hover:text-white transition">
+                  Gallery
                 </a>
               </li>
               <li>
-                <a href="/terms" className="hover:text-white transition">
-                  Terms of Service
+                <a href="/ids-youtube" className="hover:text-white transition">
+                  Youtube Videos
                 </a>
               </li>
             </ul>
@@ -83,24 +83,25 @@ export const Footer = () => {
             <ul className="space-y-3 text-gray-400">
               <li className="flex items-start space-x-2">
                 <MapPin className="w-5 h-5 flex-shrink-0 mt-0.5" />
-                <span>Butwal, Lumbini Province, Nepal</span>
+                <span>Sita pakha marga<br /> LalitpurMahalaxmi Municipality</span>
               </li>
+              <br />
               <li className="flex items-center space-x-2">
                 <Mail className="w-5 h-5 flex-shrink-0" />
                 <a
-                  href="mailto:info@idsstorynepal.com"
+                  href="mailto:business.idsnp@gmail.com"
                   className="hover:text-white transition"
                 >
-                  info@idsstorynepal.com
+                  business.idsnp@gmail.com
                 </a>
               </li>
               <li className="flex items-center space-x-2">
                 <Phone className="w-5 h-5 flex-shrink-0" />
                 <a
-                  href="tel:+977XXXXXXXXXX"
+                  href="tel:+9779860934654"
                   className="hover:text-white transition"
                 >
-                  +977 XX-XXXXXXX
+                  +977 98-60934654
                 </a>
               </li>
             </ul>
@@ -109,9 +110,7 @@ export const Footer = () => {
 
         {/* Bottom Bar */}
         <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-          <p>
-            &copy; {currentYear} IDS Story Nepal. All rights reserved.
-          </p>
+          <p>&copy; {currentYear} IDS Story Nepal. All rights reserved.</p>
         </div>
       </div>
     </footer>
