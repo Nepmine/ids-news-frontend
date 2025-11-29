@@ -378,11 +378,11 @@ export const About= ()=> {
             
             <div className="flex items-center justify-center gap-4 flex-wrap mb-12">
               {[
-                { icon: Facebook, color: 'blue', url: 'https://facebook.com/indepthstory', label: 'Facebook' },
+                { icon: Facebook, color: 'blue', url: 'https://www.facebook.com/indepthstorynepal/', label: 'Facebook' },
                 { icon: Instagram, color: 'pink', url: 'https://instagram.com/indepthstory', label: 'Instagram' },
                 { icon: Youtube, color: 'red', url: 'https://youtube.com/@indepthstory', label: 'YouTube' },
-                { icon: Twitter, color: 'sky', url: 'https://twitter.com/indepthstory', label: 'Twitter' },
-                { icon: Linkedin, color: 'blue', url: 'https://linkedin.com/company/indepthstory', label: 'LinkedIn' },
+                { icon: Twitter, color: 'sky', url: 'https://www.facebook.com/indepthstorynepal/', label: 'Twitter' },
+                { icon: Linkedin, color: 'blue', url: 'https://www.linkedin.com/company/in-depth-story/', label: 'LinkedIn' },
               ].map((social) => {
                 const Icon = social.icon;
                 return (
@@ -404,8 +404,11 @@ export const About= ()=> {
               <p className="text-lg text-gray-700 text-center mb-8">For tips, story ideas, or feedback</p>
               <div className="text-center">
                 <a
-                  href="mailto:contact@indepthstory.com"
-                  className="inline-flex items-center gap-3 bg-gradient-to-r from-red-600 to-red-700 text-white px-10 py-5 rounded-2xl font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 hover:from-red-700 hover:to-red-800"
+                  href="mailto:business.idsnp@gmail.com"
+                  onClick={(e) => {
+                    window.location.href = 'mailto:business.idsnp@gmail.com';
+                  }}
+                  className="inline-flex items-center gap-3 bg-gradient-to-r from-red-600 to-red-700 text-white px-10 py-5 rounded-2xl font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 hover:from-red-700 hover:to-red-800 cursor-pointer"
                 >
                   <Mail className="w-6 h-6" />
                   <span>Email Us</span>
