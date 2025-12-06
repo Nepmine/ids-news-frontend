@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { TrendingUp, Users, Heart, Target, Globe, MessageCircle, Video, Award, Mail, Facebook, Instagram, Youtube, Twitter, Linkedin, ArrowRight, CheckCircle, Sparkles } from 'lucide-react';
+import { FaDiscord, FaTiktok } from 'react-icons/fa';
 
 const TRANSITIONS = {
   fast: 'transition-all duration-200 ease-out',
@@ -16,9 +17,9 @@ export const About= ()=> {
   const [activeTab, setActiveTab] = useState('story');
 
   const stats = [
-    { label: 'Total Global Audience', value: '97m', icon: Globe },
-    { label: 'Monthly Uniques', value: '54m', icon: Users },
-    { label: 'Monthly Video Views', value: '500m', icon: Video },
+    { label: 'Countries', value: '180', icon: Globe },
+    { label: 'Monthly Reach', value: '50m', icon: Video },
+    { label: 'Followers', value: '1m', icon: Users },
   ];
 
   const principles = [
@@ -83,29 +84,50 @@ export const About= ()=> {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
       {/* Hero Section */}
-      <div className="bg-gradient-to-r from-red-600 via-red-700 to-red-800 text-white relative overflow-hidden">
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-0 left-0 w-96 h-96 bg-white rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute bottom-0 right-0 w-96 h-96 bg-white rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
-        </div>
+      <div className="bg-gradient-to-br from-red-600 via-red-700 to-red-900 text-white relative overflow-hidden">
+        {/* Subtle Grid Pattern */}
+        <div className="absolute inset-0 opacity-5" style={{
+          backgroundImage: `linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
+                           linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)`,
+          backgroundSize: '50px 50px'
+        }}></div>
         
-        <div className="max-w-7xl mx-auto px-4 py-20 relative z-10">
-          <div className="text-center space-y-6">
-            <h1 className={`text-5xl md:text-6xl lg:text-7xl font-bold ${TRANSITIONS.slow} hover:scale-105 inline-block cursor-default`}>
+        <div className="max-w-4xl mx-auto px-4 py-12 md:py-16 relative z-10"> 
+          <div className="text-center space-y-8">
+            {/* Main Title with Enhanced Animation */}
+            <div className="relative inline-block">
+              <h1 className={`text-5xl md:text-6xl lg:text-7xl font-bold ${TRANSITIONS.slow} hover:scale-105 cursor-default tracking-tight leading-tight`}>
+                <span className="relative inline-block">
+                  In Depth Story
+                  <div className="absolute -bottom-2 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-white to-transparent opacity-30"></div>
+                </span>
+              </h1>
+            </div>
+            
+            {/* Subtitle with Better Spacing */}
+            <p className="text-xl md:text-2xl text-red-50 max-w-2xl mx-auto font-light tracking-wide">
               Covering The Uncovered
-            </h1>
-            <p className="text-2xl md:text-3xl text-red-100 max-w-4xl mx-auto">
-              We are your friend or a brother, who explains complex things in simple words.
             </p>
+            
+            {/* Enhanced Tags */}
             <div className="flex items-center justify-center gap-4 pt-6 flex-wrap">
-              <span className="bg-white/20 backdrop-blur-sm px-6 py-3 rounded-full text-sm font-semibold">
-                Research
+              <span className="group bg-white/10 backdrop-blur-md px-6 py-3 rounded-full text-sm font-semibold hover:bg-white hover:text-red-700 transition-all duration-300 cursor-pointer border border-white/20 hover:border-white shadow-lg hover:shadow-xl hover:-translate-y-1">
+                <span className="flex items-center gap-2">
+                  <span className="w-2 h-2 bg-current rounded-full animate-pulse"></span>
+                  Research
+                </span>
               </span>
-              <span className="bg-white/20 backdrop-blur-sm px-6 py-3 rounded-full text-sm font-semibold">
-                Analysis
+              <span className="group bg-white/10 backdrop-blur-md px-6 py-3 rounded-full text-sm font-semibold hover:bg-white hover:text-red-700 transition-all duration-300 cursor-pointer border border-white/20 hover:border-white shadow-lg hover:shadow-xl hover:-translate-y-1">
+                <span className="flex items-center gap-2">
+                  <span className="w-2 h-2 bg-current rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></span>
+                  Analysis
+                </span>
               </span>
-              <span className="bg-white/20 backdrop-blur-sm px-6 py-3 rounded-full text-sm font-semibold">
-                Satire
+              <span className="group bg-white/10 backdrop-blur-md px-6 py-3 rounded-full text-sm font-semibold hover:bg-white hover:text-red-700 transition-all duration-300 cursor-pointer border border-white/20 hover:border-white shadow-lg hover:shadow-xl hover:-translate-y-1">
+                <span className="flex items-center gap-2">
+                  <span className="w-2 h-2 bg-current rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></span>
+                  Satire
+                </span>
               </span>
             </div>
           </div>
@@ -117,9 +139,8 @@ export const About= ()=> {
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-4xl font-bold text-gray-900 mb-4">
-              IDS Reaches Nepali Across the Globe
+              We Reach Nepali Across the Globe
             </h2>
-            <p className="text-xl text-gray-600">180 countries • 1 million total followers • 50 million monthly reach</p>
           </div>
           
           <div className="flex justify-center">
@@ -156,13 +177,175 @@ export const About= ()=> {
               <p className="text-xl text-gray-700 leading-relaxed mb-4">
                 Born during one of Nepal's most turbulent eras, <span className="font-bold text-red-600">In-Depth Story</span> began as a young creator's attempt to question power when speaking up felt risky. What started during the pandemic has now grown into one of Nepal's most trusted sources for explanation-driven journalism, reaching millions every month and shaping national conversations.
               </p>
-              <p className="text-2xl font-bold text-red-600 text-center mt-6">
-                But at our core, our mission remains unchanged:<br />
-                We help people understand what truly matters and why it matters.
+              <p className="text-[1.35rem] italic text-red-600 text-center mt-6 font-semibold">
+                “But at our core, our mission remains unchanged: We help people understand what truly matters and why it matters.”
               </p>
             </div>
           </div>
         </div>
+
+
+        {/* Journey Transformation Section */}
+        <div className="mb-20">
+          <div className="flex items-center gap-4 mb-12">
+            <div className="w-2 h-16 bg-gradient-to-b from-red-600 to-red-800 rounded-full"></div>
+            <h2 className="text-4xl md:text-5xl font-bold text-gray-900">Our Journey</h2>
+          </div>
+          
+          {/* Timeline Container */}
+          <div className="relative">
+            {/* Animated Timeline Line */}
+            <div className="absolute left-1/2 top-0 bottom-0 w-1 bg-gradient-to-b from-red-200 via-red-400 to-red-600 transform -translate-x-1/2 hidden lg:block">
+              <div className="absolute top-0 left-1/2 w-4 h-4 bg-red-600 rounded-full transform -translate-x-1/2 animate-pulse"></div>
+              <div className="absolute bottom-0 left-1/2 w-4 h-4 bg-red-600 rounded-full transform -translate-x-1/2"></div>
+            </div>
+
+            {/* Where It Started */}
+            <div className="grid lg:grid-cols-2 gap-8 mb-12">
+              <div className="lg:pr-8 order-2 lg:order-1">
+                <div className="bg-gradient-to-br from-gray-50 to-white p-8 rounded-2xl border-2 border-gray-200 shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 relative group">
+                  {/* Decorative Corner */}
+                  <div className="absolute top-0 right-0 w-20 h-20 bg-red-100 rounded-bl-full opacity-50 group-hover:opacity-100 transition-opacity duration-500"></div>
+                  
+                  <div className="relative z-10">
+                    <div className="inline-block mb-4">
+                      <span className="bg-gradient-to-r from-gray-600 to-gray-800 text-white px-4 py-2 rounded-full text-sm font-bold shadow-md">
+                        The Beginning
+                      </span>
+                    </div>
+                    <h3 className="text-3xl font-bold text-gray-900 mb-4 group-hover:text-red-600 transition-colors duration-300">
+                      One Person, One Camera, One Mission
+                    </h3>
+                    <p className="text-gray-700 text-lg leading-relaxed mb-4">
+                      It started in a small room during the pandemic. No studio, no team, no budget—just a young creator with a laptop, a phone camera, and an unshakeable belief that Nepal deserved better media.
+                    </p>
+                    <p className="text-gray-700 text-lg leading-relaxed mb-4">
+                      Every video was researched, scripted, filmed, and edited alone. Every thumbnail designed by hand. Every comment replied to personally.
+                    </p>
+                    <p className="text-red-600 font-bold text-lg italic">
+                      "The goal wasn't to go viral. It was to make people think."
+                    </p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="order-1 lg:order-2 lg:pl-8">
+                <div className="relative group cursor-pointer">
+                  {/* Image Container with Hover Effect */}
+                  <div className="relative overflow-hidden rounded-2xl shadow-2xl transform transition-all duration-500 hover:scale-105 hover:rotate-1">
+                    {/* Placeholder - Replace with actual image */}
+                    <div className="aspect-[4/3] bg-gradient-to-br from-gray-800 via-gray-900 to-black flex items-center justify-center relative">
+                      {/* Overlay gradient */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                      
+                      {/* Upload prompt or actual image */}
+                      <div className="relative z-10 text-center p-8">
+                        <iframe width="560" height="315" src="https://www.youtube.com/embed/sGfGMHsB09w" 
+    frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+    allowFullScreen></iframe>
+                      </div>
+                      
+                      {/* Film grain effect */}
+                      <div className="absolute inset-0 opacity-20 bg-repeat" style={{
+                        backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' /%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' /%3E%3C/svg%3E")`,
+                        backgroundSize: '100px 100px'
+                      }}></div>
+                    </div>
+                    
+                    {/* Border glow on hover */}
+                    <div className="absolute inset-0 border-4 border-red-500 rounded-2xl opacity-0 group-hover:opacity-50 transition-opacity duration-500"></div>
+                  </div>
+                  
+                  {/* Floating badge */}
+                  <div className="absolute -bottom-4 -right-4 bg-white px-6 py-3 rounded-full shadow-xl border-2 border-red-600 transform transition-all duration-500 group-hover:scale-110 group-hover:rotate-3">
+                    <p className="text-red-600 font-bold text-sm">2020-2021</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Transformation Arrow - Compact version */}
+            <div className="hidden lg:flex items-center justify-center my-8 relative z-20">
+              <div className="bg-white rounded-full p-4 shadow-xl border-3 border-red-600">
+                <ArrowRight className="w-8 h-8 text-red-600 transform rotate-90" />
+              </div>
+            </div>
+
+            {/* Where We Are Today */}
+            <div className="grid lg:grid-cols-2 gap-8 mt-8">
+              {/* Left Column - Team Image with Content */}
+              <div className="lg:pr-8">
+                <div className="bg-gradient-to-br from-red-50 to-white p-8 rounded-2xl border-2 border-red-100 shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 relative group h-full">
+                  {/* Decorative Corner */}
+                  <div className="absolute top-0 left-0 w-20 h-20 bg-red-100 rounded-br-full opacity-50 group-hover:opacity-100 transition-opacity duration-500"></div>
+                  
+                  <div className="relative z-10">
+                    <div className="inline-block mb-4">
+                      <span className="bg-gradient-to-r from-red-600 to-red-700 text-white px-4 py-2 rounded-full text-sm font-bold shadow-md">
+                        Today
+                      </span>
+                    </div>
+                    <h3 className="text-3xl font-bold text-gray-900 mb-4 group-hover:text-red-600 transition-colors duration-300">
+                      A Team, An Office, A Movement
+                    </h3>
+                    
+                    {/* Team Image */}
+                    <div className="relative overflow-hidden rounded-xl shadow-lg mb-6 group/img">
+                      <img 
+                        src="resources/IdsTeam.jpeg" 
+                        alt="In-Depth Story Team" 
+                        className="w-full h-auto object-cover transform transition-transform duration-500 group-hover/img:scale-105"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+                    </div>
+                    
+                    <p className="text-gray-700 text-lg leading-relaxed mb-4">
+                      Today, In-Depth Story is a team of researchers, writers, editors, designers, and strategists working together to bring you the stories that matter.
+                    </p>
+                    <p className="text-gray-700 text-lg leading-relaxed mb-4">
+                      We have our own office, our own workflow, and most importantly—our own voice. No one tells us what to cover. No one edits our conscience.
+                    </p>
+                    <p className="text-red-600 font-bold text-lg italic">
+                      "We've gone from one person's mission to a movement."
+                    </p>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Right Column - Office Image with Stats */}
+              <div className="lg:pl-8">
+                <div className="bg-gradient-to-br from-gray-50 to-white p-8 rounded-2xl border-2 border-gray-200 shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 h-full flex flex-col relative">
+                  {/* Office Image */}
+                  <div className="relative overflow-hidden rounded-xl shadow-lg mb-6 group/img flex-grow">
+                    <img 
+                      src="resources/idsOffice.jpeg" 
+                      alt="In-Depth Story Office" 
+                      className="w-full h-full object-cover transform transition-transform duration-500 group-hover/img:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
+                    <div className="absolute bottom-4 left-4 right-4">
+                      <div className="bg-white/90 backdrop-blur-sm px-4 py-2 rounded-lg">
+                        <p className="text-gray-900 font-bold text-sm">Our Home in Nepal</p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Floating Year Badge */}
+                  <div className="absolute -top-3 -right-3 bg-gradient-to-r from-red-600 to-red-700 px-5 py-2 rounded-full shadow-xl border-2 border-white z-30">
+                    <p className="text-white font-bold text-sm">2025</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            </div>
+            {/* Stats Comparison */}
+            <div className="mt-12 text-center">
+              <p className="text-2xl md:text-2xl font-bold text-transparent bg-gradient-to-r from-red-600 to-red-800 bg-clip-text">
+                And we're just getting started!
+              </p>
+            </div>
+        </div>  
 
         {/* Why We Exist - Improved Layout */}
         <div className="mb-20">
@@ -363,6 +546,19 @@ export const About= ()=> {
                 Tell us what you want us to explain next.
               </p>
             </div>
+            <div className="text-center mt-7">
+                <a
+                  href="mailto:business.idsnp@gmail.com"
+                  onClick={(e) => {
+                    window.location.href = 'mailto:business.idsnp@gmail.com';
+                  }}
+                  className="inline-flex items-center gap-3 bg-gradient-to-r from-red-600 to-red-700 text-white px-10 py-5 rounded-2xl font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 hover:from-red-700 hover:to-red-800 cursor-pointer"
+                >
+                  <Mail className="w-6 h-6" />
+                  <span>Email Us</span>
+                  <ArrowRight className="w-5 h-5" />
+                </a>
+              </div>
           </div>
         </div>
 
@@ -381,8 +577,10 @@ export const About= ()=> {
                 { icon: Facebook, color: 'blue', url: 'https://www.facebook.com/indepthstorynepal/', label: 'Facebook' },
                 { icon: Instagram, color: 'pink', url: 'https://instagram.com/indepthstory', label: 'Instagram' },
                 { icon: Youtube, color: 'red', url: 'https://youtube.com/@indepthstory', label: 'YouTube' },
+                { icon: FaTiktok, color: 'blue', url: 'https://www.tiktok.com/@indepthstoryofficial?lang=en', label: 'TikTok' },
                 { icon: Twitter, color: 'sky', url: 'https://www.facebook.com/indepthstorynepal/', label: 'Twitter' },
                 { icon: Linkedin, color: 'blue', url: 'https://www.linkedin.com/company/in-depth-story/', label: 'LinkedIn' },
+                { icon: FaDiscord, color: 'blue', url: 'https://discord.gg/A7wdgMTd', label: 'Discord' },
               ].map((social) => {
                 const Icon = social.icon;
                 return (
@@ -398,23 +596,6 @@ export const About= ()=> {
                   </a>
                 );
               })}
-            </div>
-
-            <div className="pt-10 border-t-2 border-gray-200">
-              <p className="text-lg text-gray-700 text-center mb-8">For tips, story ideas, or feedback</p>
-              <div className="text-center">
-                <a
-                  href="mailto:business.idsnp@gmail.com"
-                  onClick={(e) => {
-                    window.location.href = 'mailto:business.idsnp@gmail.com';
-                  }}
-                  className="inline-flex items-center gap-3 bg-gradient-to-r from-red-600 to-red-700 text-white px-10 py-5 rounded-2xl font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 hover:from-red-700 hover:to-red-800 cursor-pointer"
-                >
-                  <Mail className="w-6 h-6" />
-                  <span>Email Us</span>
-                  <ArrowRight className="w-5 h-5" />
-                </a>
-              </div>
             </div>
           </div>
         </div>

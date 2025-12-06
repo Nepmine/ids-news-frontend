@@ -83,9 +83,8 @@ export const Footer = () => {
             <ul className="space-y-3 text-gray-400">
               <li className="flex items-start space-x-2">
                 <MapPin className="w-5 h-5 flex-shrink-0 mt-0.5" />
-                <span>Sita pakha marga<br /> LalitpurMahalaxmi Municipality</span>
+                <span>Lalitpur, Nepal</span>
               </li>
-              <br />
               <li className="flex items-center space-x-2">
                 <Mail className="w-5 h-5 flex-shrink-0" />
                 <a

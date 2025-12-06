@@ -119,7 +119,7 @@ export const Header = ({ onMenuClick }) => {
                   />
                 </div>
                 <h1 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight whitespace-nowrap transition-all duration-300 group-hover:text-red-100">
-                  IDS News
+                  In Depth Story
                 </h1>
               </button>
             </div>
@@ -311,16 +311,7 @@ export const Header = ({ onMenuClick }) => {
             </div>
 
             {/* Bottom Bar */}
-            <div className="mt-6 pt-4 border-t border-gray-200 flex items-center justify-between">
-              <p className="text-xs text-gray-500">
-                IDS News Nepal - Your trusted source for news and updates
-              </p>
-              <button 
-                onClick={() => navigate('/about')}
-                className="text-xs text-red-600 hover:text-red-700 font-semibold"
-              >
-                About Us →
-              </button>
+            <div className="mt-4 pt-3 border-t border-gray-200 flex items-center justify-between">
             </div>
           </div>
         </div>
